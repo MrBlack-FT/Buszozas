@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -7,17 +6,18 @@ public class CustomNavigationManager : MonoBehaviour
 {
     #region Változók
 
-    [SerializeField] private GameObject[] interactivePanels;
-
-    private Dictionary<GameObject, Color> originalColors = new Dictionary<GameObject, Color>();
+    [SerializeField] private UIVars uiVars;
+    [SerializeField] private CustomPainter customPainter;
+    
     
     private GameObject _currentActivePanel;
     private GameObject _currentSelected;
     private GameObject _lastSelected;
 
-    private Debugger debugger; // Hivatkozás a Debugger scriptre
+    private Debugger debugger;
 
     #endregion
+
 
     #region Getterek és Setterek
     
@@ -26,6 +26,7 @@ public class CustomNavigationManager : MonoBehaviour
     public GameObject LastSelected       { get => _lastSelected; set => _lastSelected = value; }
     
     #endregion
+
 
     #region Awake, Start, Update
 
@@ -40,37 +41,40 @@ public class CustomNavigationManager : MonoBehaviour
         {
             Debug.LogWarning("!DEBUGGER! GameObject not found in the scene.");
         }
+
+        if (uiVars == null)
+        {
+            Debug.LogWarning("UIVars is not set in the Inspector!");
+        }
+
+        if (customPainter == null)
+        {
+            Debug.LogWarning("CustomPainter is not set in the Inspector!");
+        }
     }
 
     private void Start()
     {
-        // Ha az interactivePanels nincs beállítva az Inspectorban, figyelmeztetést adunk
-        if (interactivePanels == null || interactivePanels.Length == 0)
-        {
-            Debug.LogWarning("Interactive panels are not set in the Inspector!");
-        }
-
-        foreach (GameObject panel in interactivePanels)
+        foreach (GameObject panel in uiVars.InteractivePanels)
         {
             // Keresd meg az összes Selectable komponenst a panel gyermekeiben
             Selectable[] selectables = panel.GetComponentsInChildren<Selectable>();
 
             foreach (Selectable selectable in selectables)
             {
+                /*
                 // Ellenőrizd, hogy van-e Image komponens
                 Image image = selectable.GetComponent<Image>();
                 if (image != null)
                 {
-                    // Tárold el az eredeti színt a Dictionary-ben
-                    if (!originalColors.ContainsKey(selectable.gameObject))
-                    {
-                        originalColors[selectable.gameObject] = image.color;
-                    }
+                    customPainter.AddColorToDictionary(selectable.gameObject, image.color);
                 }
                 else
                 {
                     Debug.LogWarning($"Found Selectable GameObject without Image component: {selectable.gameObject.name}");
                 }
+                */
+                customPainter.SaveGOColorToDictionary(selectable.gameObject);
             }
         }
     }
@@ -116,26 +120,32 @@ public class CustomNavigationManager : MonoBehaviour
             // Az előzőleg kiválasztott elem visszaállítása az eredeti színre
             if (LastSelected != null)
             {
+                /*
                 Image lastImage = LastSelected.GetComponent<Image>();
-                if (lastImage != null && originalColors.TryGetValue(LastSelected, out Color originalColor))
+                if (lastImage != null && customPainter.OriginalColors.TryGetValue(LastSelected, out Color p_originalColor))
                 {
-                    lastImage.color = originalColor;
+                    lastImage.color = p_originalColor;
                 }
+                */
+                customPainter.ResetColor(LastSelected);
             }
 
             // Az aktuálisan kiválasztott elem háttérszínének beállítása narancsra
             if (CurrentSelected != null)
             {
+                /*
                 Image currentImage = CurrentSelected.GetComponent<Image>();
                 if (currentImage != null)
                 {
                     // Ha még nincs eltárolva az eredeti szín, akkor elmentjük
-                    if (!originalColors.ContainsKey(CurrentSelected))
+                    if (!customPainter.OriginalColors.ContainsKey(CurrentSelected))
                     {
-                        originalColors[CurrentSelected] = currentImage.color;
+                        customPainter.OriginalColors[CurrentSelected] = currentImage.color;
                     }
                     currentImage.color = new Color(1f, 0.5f, 0f); // Narancssárga
                 }
+                */
+                customPainter.ChangeColor(CurrentSelected, new Color(1f, 0.5f, 0f)); // Narancssárga
             }
 
             // Persistent státusz frissítése a Debugger-ben
@@ -156,12 +166,13 @@ public class CustomNavigationManager : MonoBehaviour
 
     #endregion
 
+
     #region Metódusok
 
     // Segédfüggvény az aktív panel lekérésére
     private GameObject GetActivePanel()
     {
-        foreach (GameObject panel in interactivePanels)
+        foreach (GameObject panel in uiVars.InteractivePanels)
         {
             if (panel.activeSelf) // Ellenőrizzük, hogy a panel aktív-e
             {

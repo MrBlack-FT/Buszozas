@@ -1,10 +1,12 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using DG.Tweening;
 
 public class CustomSceneManager : MonoBehaviour
 {
     public void LoadScene(string sceneName)
     {
+        DOTween.KillAll();
         if (IsSceneInBuildSettings(sceneName))
         {
             SceneManager.LoadScene(sceneName);
@@ -18,6 +20,7 @@ public class CustomSceneManager : MonoBehaviour
 
     public void LoadScene(int sceneIndex)
     {
+        DOTween.KillAll();
         if (sceneIndex >= 0 && sceneIndex < SceneManager.sceneCountInBuildSettings)
         {
             SceneManager.LoadScene(sceneIndex);
@@ -31,6 +34,7 @@ public class CustomSceneManager : MonoBehaviour
 
     public void ReloadCurrentScene()
     {
+        DOTween.KillAll();
         Scene currentScene = SceneManager.GetActiveScene();
         SceneManager.LoadScene(currentScene.buildIndex);
     }
@@ -51,6 +55,7 @@ public class CustomSceneManager : MonoBehaviour
 
     public void ExitGame()
     {
+        DOTween.KillAll();
         Application.Quit();
     }
 }
