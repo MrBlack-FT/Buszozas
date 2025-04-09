@@ -1,4 +1,4 @@
-# Buszozas
+# Buszozás
 
 ## Források
 🔠 Betűkészlet: <a target="_blank" href="https://fontstruct.com/fontstructions/show/908795/pixel_unicode">Pixel Unicode</a> | License: (Creative Commons Attribution 3.0)
