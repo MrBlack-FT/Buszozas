@@ -10,9 +10,6 @@ using TMPro;
 
 public class BuildNumber : MonoBehaviour
 {
-    [Header("Build Number")]
-    [SerializeField] private TextMeshProUGUI buildNumberTMP = null; 
-
     private void Start()
     {
         string buildVersion = PlayerPrefs.GetString("buildNumber", CalculateVersionNumber());
@@ -25,14 +22,7 @@ public class BuildNumber : MonoBehaviour
         buildVersion = $"(build {buildVersion})";
         #endif
 
-        if (buildNumberTMP != null)
-        {
-            buildNumberTMP.text = buildVersion;
-        }
-        else
-        {
-            Debug.LogError("Build number TMP is not assigned in the inspector.");
-        }
+        gameObject.GetComponent<TextMeshProUGUI>().text = buildVersion;
     }
 
     private static string CalculateVersionNumber()

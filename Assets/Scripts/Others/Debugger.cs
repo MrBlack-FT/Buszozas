@@ -18,6 +18,8 @@ public class Debugger : MonoBehaviour
 
     private GameObject[] interactivePanels;
 
+    private float clearLogsTimer = 0f;
+
     #endregion
 
     #region Awake, Start, Update, LateUpdate
@@ -86,7 +88,13 @@ public class Debugger : MonoBehaviour
         outputText.text = debugText;
         //Debug.Log(debugText);
 
-        transientLogs = ""; // Minden frame végén töröljük a transient logokat
+
+        clearLogsTimer += Time.deltaTime;
+        if (clearLogsTimer >= 2f)
+        {
+            transientLogs = ""; // Töröljük a transient logokat
+            clearLogsTimer = 0f; // Timer visszaállítása
+        }
     }
 
     #endregion
@@ -99,14 +107,12 @@ public class Debugger : MonoBehaviour
         persistentLogs[key] = message;
     }
 
-    // A sima DebugLog, amely egyszeri üzeneteket ad hozzá
-    public void DebugLog(string message)
+    public void CustomDebugLog(string message)
     {
         transientLogs += "DL  - " + message + "\n";
     }
 
-    // A DebugLog2 például több részből álló üzenetekhez (opcionális)
-    public void DebugLog2(params (string text, Color color)[] messages)
+    public void CustomDebugLog2(params (string text, Color color)[] messages)
     {
         transientLogs += "DL2 - ";
         foreach (var message in messages)

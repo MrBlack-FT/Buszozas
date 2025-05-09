@@ -3,9 +3,12 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using DG.Tweening;
 
-public class CustomButtonBackground : CustomButtonBase
+public class CustomButtonBackground : MonoBehaviour
 {
     #region Változók
+
+    private UIVars uiVars;
+    private Debugger debugger;
 
     private CustomPainter customPainter;
     private Color _backgroundColor;
@@ -24,6 +27,22 @@ public class CustomButtonBackground : CustomButtonBase
 
     private void Awake()
     {
+        uiVars = GameObject.Find("UIVars").GetComponent<UIVars>();
+        if (uiVars == null)
+        {
+            Debug.LogWarning("UIVars not found in the scene.");
+        }
+
+        GameObject debugPanel = GameObject.Find("!DEBUGGER!");
+        if (debugPanel != null)
+        {
+            debugger = debugPanel.GetComponent<Debugger>();
+        }
+        else
+        {
+            Debug.LogWarning("!DEBUGGER! GameObject not found in the scene.");
+        }
+
         BackgroundColor = GetComponent<Image>().color;
 
         customPainter = GameObject.Find("CustomPainter").GetComponent<CustomPainter>();
@@ -32,125 +51,59 @@ public class CustomButtonBackground : CustomButtonBase
             Debug.LogWarning("CustomPainter not found in the scene.");
         }
 
-
         EventTrigger eventTrigger = GetComponent<EventTrigger>() ?? gameObject.AddComponent<EventTrigger>();
-        EventTrigger.Entry entry = new EventTrigger.Entry();
-        entry.eventID = EventTriggerType.PointerClick;
-        entry.callback.AddListener((eventData) => 
-        {
-            Debug.Log("🟨 EventTrigger → PointerClick (CustomButtonBackground)");
-        });
-        eventTrigger.triggers.Add(entry);
 
-        EventTrigger.Entry entry2 = new EventTrigger.Entry();
-        entry2.eventID = EventTriggerType.PointerDown;
-        entry2.callback.AddListener((eventData) => 
+        // PointerEnter
+        EventTrigger.Entry entryEnter = new EventTrigger.Entry();
+        entryEnter.eventID = EventTriggerType.PointerEnter;
+        entryEnter.callback.AddListener((eventData) =>
         {
-            Debug.Log("🟧 EventTrigger → PointerDown (CustomButtonBackground)");
+            //Debug.Log("🟨 PointerEnter");
+            if (uiVars.IsPointerDown) return;
+            debugger.CustomDebugLog($"Selecting {gameObject.name} button because PointerEnter event was triggered.");
+            EventSystem.current.SetSelectedGameObject(gameObject);
         });
-        eventTrigger.triggers.Add(entry2);
+        eventTrigger.triggers.Add(entryEnter);
 
-        GetComponent<Button>().onClick.AddListener(() =>
+        // PointerDown
+        EventTrigger.Entry entryDown = new EventTrigger.Entry();
+        entryDown.eventID = EventTriggerType.PointerDown;
+        entryDown.callback.AddListener((eventData) =>
         {
-            Debug.Log("🟩 Button.onClick UnityEvent (CustomButtonBackground)");
+            //Debug.Log("🟧 PointerDown");
+            uiVars.IsPointerDown = true;
+            Sequence sequence = DOTween.Sequence();
+            sequence.Append(GetComponent<Image>().DOColor(new Color(0.5f, 1, 0.5f), duration).SetEase(Ease.OutBack));
+            //sequence.OnComplete(() => Debug.Log("Sequence: DOColor completed!"));
+            GetComponent<Button>().onClick.Invoke();
         });
+        eventTrigger.triggers.Add(entryDown);
 
+        
+        // PointerUp
+        EventTrigger.Entry entryUp = new EventTrigger.Entry();
+        entryUp.eventID = EventTriggerType.PointerUp;
+        entryUp.callback.AddListener((eventData) =>
+        {
+            //Debug.Log("🟩 PointerUp");
+            uiVars.IsPointerDown = false;
+            //customPainter.ResetColor(gameObject);
+        });
+        eventTrigger.triggers.Add(entryUp);
+    }
+
+    private void Update()
+    {
+        if (debugger != null)
+        {
+            string PointerDownStatus = debugger.ColoredString(uiVars.IsPointerDown ? "TRUE" : "FALSE", uiVars.IsPointerDown ? Color.green : Color.red);
+            debugger.UpdatePersistentLog("isPointerDown", PointerDownStatus);
+        }
     }
 
     #endregion
 
     #region Metódusok
 
-    public override void OnPointerEnter(PointerEventData eventData)
-    {
-        if (!GetComponent<Button>().interactable) return;
-
-        //Debug.Log("Pointer Enter");
-        EventSystem.current.SetSelectedGameObject(gameObject);
-        //GetComponent<Image>().color = new Color(1, 0.5f, 0);
-
-        //customPainter.ChangeColor(gameObject, new Color(1, 0.5f, 0));
-
-        //GetComponent<Image>().DOFade(1, duration).SetEase(Ease.InOutSine);
-
-        /*
-        Kísérlet későbbre...
-        GetComponent<Image>().DOColor(new Color(1, 0.5f, 0), Duration).SetEase(Ease.InBack).OnComplete(() =>
-        {
-            GetComponent<Image>().DOColor(BackgroundColor, Duration).SetEase(Ease.OutBack);
-        });
-        */
-    }
-
-    public override void OnPointerDown(PointerEventData eventData)
-    {
-        if (!GetComponent<Button>().interactable) return;
-
-        //Debug.Log("Pointer Down");
-        /*
-        GetComponent<Image>().color = Color.green;
-        GetComponent<Button>()?.onClick.Invoke();
-        GetComponent<Image>().color = BackgroundColor;
-        */
-
-        //purple box debug log
-        Debug.Log("🟪 OnPointerDown (IPointerDownHandler)");
-
-        Sequence sequence = DOTween.Sequence();
-        sequence.Append(GetComponent<Image>().DOColor(new Color(0.5f, 1, 0.5f), Duration).SetEase(Ease.OutBack).OnComplete(() =>
-        {
-             //GetComponent<Button>()?.onClick.Invoke();
-        }));
-        sequence.AppendCallback(() => customPainter.ResetColor(gameObject));
-        /*
-        customPainter.ChangeColor(gameObject, new Color(0.5f, 1, 0.5f));
-        GetComponent<Button>()?.onClick.Invoke();
-        customPainter.ResetColor(gameObject);
-        */
-    }
-
-    public override void OnPointerClick(PointerEventData eventData)
-    {
-        if (!GetComponent<Button>().interactable) return;
-
-        //Debug.Log("Pointer Click");
-        /*
-        GetComponent<Image>().color = Color.green;
-        GetComponent<Button>()?.onClick.Invoke();
-        GetComponent<Image>().color = BackgroundColor;
-        */
-
-        //blue box debug log
-        Debug.Log("🟦 OnPointerClick (IPointerClickHandler)");
-
-        customPainter.ChangeColor(gameObject, new Color(0.5f, 1, 0.5f));
-        /*
-        Debug.Log("CBB - Button clicked: " + gameObject.name);
-        Debug.Log("eventData: " + eventData);
-        Debug.Log("eventData.pointerPress: " + eventData.pointerPress);
-        //GetComponent<Button>()?.onClick.Invoke();
-        Debug.Log("CBB - Button clicked: " + gameObject.name + " - Invoke() called.");
-        */
-        customPainter.ResetColor(gameObject);
-    }
-
-    public override void OnPointerExit(PointerEventData eventData)
-    {
-        //Debug.Log("Pointer Exit");
-        //GetComponent<Image>().color = BackgroundColor;
-
-        //GetComponent<Image>().DOFade(0, duration).SetEase(Ease.InOutSine);
-
-        //customPainter.ResetColor(gameObject);
-
-        /*
-        //Kísérlet későbbre...
-        GetComponent<Image>().DOFade(0, duration).SetEase(Ease.InOutSine).OnComplete(() =>
-        {
-            GetComponent<Image>().DOFade(1, duration).SetEase(Ease.InOutSine);
-        });
-        */
-    }
-    
     #endregion
 }

@@ -9,7 +9,6 @@ public class CustomNavigationManager : MonoBehaviour
     [SerializeField] private UIVars uiVars;
     [SerializeField] private CustomPainter customPainter;
     
-    
     private GameObject _currentActivePanel;
     private GameObject _currentSelected;
     private GameObject _lastSelected;
@@ -62,18 +61,6 @@ public class CustomNavigationManager : MonoBehaviour
 
             foreach (Selectable selectable in selectables)
             {
-                /*
-                // Ellenőrizd, hogy van-e Image komponens
-                Image image = selectable.GetComponent<Image>();
-                if (image != null)
-                {
-                    customPainter.AddColorToDictionary(selectable.gameObject, image.color);
-                }
-                else
-                {
-                    Debug.LogWarning($"Found Selectable GameObject without Image component: {selectable.gameObject.name}");
-                }
-                */
                 customPainter.SaveGOColorToDictionary(selectable.gameObject);
             }
         }
@@ -91,6 +78,7 @@ public class CustomNavigationManager : MonoBehaviour
             // Kijelöljük az első Selectable elemet az új aktív panelen
             if (CurrentActivePanel != null)
             {
+                debugger.CustomDebugLog($"Selecting first selectable in {CurrentActivePanel.name} panel");
                 SelectFirstSelectable(CurrentActivePanel);
             }
         }
@@ -104,11 +92,13 @@ public class CustomNavigationManager : MonoBehaviour
             if (LastSelected != null)
             {
                 // Jelöljük ki az utoljára kijelölt elemet
+                debugger.CustomDebugLog($"Re-selecting last selected: {LastSelected.name}");
                 EventSystem.current.SetSelectedGameObject(LastSelected);
             }
             else if (CurrentActivePanel != null)
             {
                 // Ha nincs utoljára kijelölt elem, jelöljük ki az aktuális panel első elemét
+                debugger.CustomDebugLog($"Selecting first selectable in {CurrentActivePanel.name} panel \n because there is no last selected element");
                 SelectFirstSelectable(CurrentActivePanel);
             }
             else    return; // Ha nincs aktív panel, nem csinálunk semmit
@@ -120,31 +110,12 @@ public class CustomNavigationManager : MonoBehaviour
             // Az előzőleg kiválasztott elem visszaállítása az eredeti színre
             if (LastSelected != null)
             {
-                /*
-                Image lastImage = LastSelected.GetComponent<Image>();
-                if (lastImage != null && customPainter.OriginalColors.TryGetValue(LastSelected, out Color p_originalColor))
-                {
-                    lastImage.color = p_originalColor;
-                }
-                */
                 customPainter.ResetColor(LastSelected);
             }
 
             // Az aktuálisan kiválasztott elem háttérszínének beállítása narancsra
             if (CurrentSelected != null)
             {
-                /*
-                Image currentImage = CurrentSelected.GetComponent<Image>();
-                if (currentImage != null)
-                {
-                    // Ha még nincs eltárolva az eredeti szín, akkor elmentjük
-                    if (!customPainter.OriginalColors.ContainsKey(CurrentSelected))
-                    {
-                        customPainter.OriginalColors[CurrentSelected] = currentImage.color;
-                    }
-                    currentImage.color = new Color(1f, 0.5f, 0f); // Narancssárga
-                }
-                */
                 customPainter.ChangeColor(CurrentSelected, new Color(1f, 0.5f, 0f)); // Narancssárga
             }
 
@@ -159,7 +130,6 @@ public class CustomNavigationManager : MonoBehaviour
                 debugger.UpdatePersistentLog("Current Selected", currentStatus);
                 debugger.UpdatePersistentLog("Last Selected", lastStatus);
             }
-
             LastSelected = CurrentSelected;
         }
     }
@@ -191,6 +161,6 @@ public class CustomNavigationManager : MonoBehaviour
             EventSystem.current.SetSelectedGameObject(selectables[0].gameObject);
         }
     }
-    
+
     #endregion
 }

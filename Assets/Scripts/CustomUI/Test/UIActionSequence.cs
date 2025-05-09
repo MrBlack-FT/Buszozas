@@ -7,26 +7,45 @@ public class UIActionSequence : MonoBehaviour
     public List<CustomAction> osActions;
     public List<CustomAction> csActions;
 
-    private int callCount = 0;
+    // Colored boxes:🟩, 🟦, 🟨, 🟧, 🟫, 🟪, 🟥
 
     public void OpenSettings()
     {
-        // Colored boxes:🟩, 🟦, 🟨, 🟧, 🟫, 🟪, 🟥
-        callCount++;
-        Debug.Log("! callCount: " + callCount);
-
-        Debug.Log("OpeningSettings() called.");
         HandleActions(osActions);
     }
 
     public void CloseSettings()
     {
-        Debug.Log("ClosingSettings() called.");
         HandleActions(csActions);
     }
 
+    private Dictionary<GameObject, Vector3> originalPositions = new Dictionary<GameObject, Vector3>();
+    private Dictionary<GameObject, float> originalAlphas = new Dictionary<GameObject, float>();
+
     private void HandleActions(List<CustomAction> actions)
     {
+        List<GameObject> targets = new List<GameObject>();
+
+        foreach(var action in actions)
+        {
+            if (action.target != null && !targets.Contains(action.target))
+            {
+                targets.Add(action.target);
+
+                // Eredeti pozíció és alpha mentése
+                if (!originalPositions.ContainsKey(action.target))
+                {
+                    originalPositions[action.target] = action.target.transform.localPosition;
+                }
+
+                var canvasGroup = action.target.GetComponent<CanvasGroup>();
+                if (canvasGroup != null && !originalAlphas.ContainsKey(action.target))
+                {
+                    originalAlphas[action.target] = canvasGroup.alpha;
+                }
+            }
+        }
+
         Sequence sequence = DOTween.Sequence();
 
         for (int i = 0; i < actions.Count; i++)
@@ -62,8 +81,8 @@ public class UIActionSequence : MonoBehaviour
                 continue;
             }
 
-            Vector3 originalPosition = action.target.transform.localPosition; // Eredeti pozíció mentése
-            Vector3 offset = GetDirectionOffset(action.direction); // Irány szerinti eltolás
+            Vector3 originalPosition = originalPositions[action.target];
+            Vector3 offset = GetDirectionOffset(action.direction);
 
             if (action.actionType == ActionType.FadeIn)
             {
@@ -98,7 +117,27 @@ public class UIActionSequence : MonoBehaviour
             }
         }
 
-        sequence.OnComplete(() => Debug.Log("Sequence completed!"));
+        sequence.OnComplete(() =>
+        {
+            Debug.Log("Sequence completed!");
+
+            foreach (var target in targets)
+            {
+                // Pozíció visszaállítása
+                if (originalPositions.ContainsKey(target))
+                {
+                    target.transform.localPosition = originalPositions[target];
+                }
+
+                // Alpha visszaállítása
+                var canvasGroup = target.GetComponent<CanvasGroup>();
+                if (canvasGroup != null && originalAlphas.ContainsKey(target))
+                {
+                    canvasGroup.alpha = originalAlphas[target];
+                }
+            }
+        
+        });
     }
 
     private Vector3 GetDirectionOffset(Direction direction)
@@ -117,10 +156,5 @@ public class UIActionSequence : MonoBehaviour
                 Debug.LogWarning("Unknown direction: " + direction);
                 return Vector3.zero;
         }
-    }
-
-    public void MyOnClickHandler()
-    {
-        Debug.Log("EZ ITT AZ onClick ESEMÉNY!"); // EZ FOG FUTNI
     }
 }
