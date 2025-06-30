@@ -8,6 +8,7 @@ public class UIVars : MonoBehaviour
     public enum Direction { UP, DOWN, LEFT, RIGHT };
     private Direction _direction = Direction.UP;
     private bool isPointerDown = false;
+    private bool isMenuTransitioning = false;
 
     #endregion
 
@@ -17,6 +18,7 @@ public class UIVars : MonoBehaviour
     public GameObject[] InteractivePanels{get => interactivePanels;}
     public Direction CurrentDirection { get => _direction; set => _direction = value; }
     public bool IsPointerDown { get => isPointerDown; set => isPointerDown = value; }
+    public bool IsMenuTransitioning { get => isMenuTransitioning; set => isMenuTransitioning = value; }
 
     #endregion
 

@@ -4,25 +4,69 @@ using DG.Tweening;
 
 public class UIActionSequence : MonoBehaviour
 {
+    private UIVars uiVars;
+    private Debugger debugger;
+
     public List<CustomAction> osActions;
     public List<CustomAction> csActions;
 
+    private Sequence sequence;
+
     // Colored boxes:🟩, 🟦, 🟨, 🟧, 🟫, 🟪, 🟥
 
+    private void Awake()
+    {
+        uiVars = GameObject.Find("UIVars").GetComponent<UIVars>();
+        if (uiVars == null)
+        {
+            Debug.LogWarning("UIVars not found in the scene.");
+        }
+        GameObject debugPanel = GameObject.Find("!DEBUGGER!");
+        if (debugPanel != null)
+        {
+            debugger = debugPanel.GetComponent<Debugger>();
+        }
+        else
+        {
+            Debug.LogWarning("!DEBUGGER! GameObject not found in the scene.");
+        }
+    }
+
+    private void Update()
+    {
+        if (debugger != null)
+        {
+            string isMenuTransitioningStatus = debugger.ColoredString(uiVars.IsMenuTransitioning ? "TRUE" : "FALSE", uiVars.IsMenuTransitioning ? Color.green : Color.red);
+            debugger.UpdatePersistentLog("IsMenuTransitioning", isMenuTransitioningStatus);
+        }
+    }
+    
     public void OpenSettings()
     {
-        HandleActions(osActions);
+        if(uiVars.IsMenuTransitioning)
+        {
+            Debug.LogWarning("Menu is already transitioning, skipping OpenSettings action.");
+            return;
+        }
+
+        HandleActions(osActions, "OPENING SETTINGS");
     }
 
     public void CloseSettings()
     {
-        HandleActions(csActions);
+        if(uiVars.IsMenuTransitioning)
+        {
+            Debug.LogWarning("Menu is already transitioning, skipping CloseSettings action.");
+            return;
+        }
+
+        HandleActions(csActions, "CLOSING SETTINGS");
     }
 
     private Dictionary<GameObject, Vector3> originalPositions = new Dictionary<GameObject, Vector3>();
     private Dictionary<GameObject, float> originalAlphas = new Dictionary<GameObject, float>();
 
-    private void HandleActions(List<CustomAction> actions)
+    private void HandleActions(List<CustomAction> actions, string actionName)
     {
         List<GameObject> targets = new List<GameObject>();
 
@@ -46,12 +90,14 @@ public class UIActionSequence : MonoBehaviour
             }
         }
 
-        Sequence sequence = DOTween.Sequence();
+        uiVars.IsMenuTransitioning = true;
+
+        sequence = DOTween.Sequence();
 
         for (int i = 0; i < actions.Count; i++)
         {
             var action = actions[i];
-            Debug.Log("Action: " + action.actionType + " \n\tTarget: " + action.target + " \n\tDuration: " + action.duration + " \n\tDirection: " + action.direction + " \n\tTiming: " + action.timing);
+            //Debug.Log("Action: " + action.actionType + " \n\tTarget: " + action.target + " \n\tDuration: " + action.duration + " \n\tDirection: " + action.direction + " \n\tTiming: " + action.timing);
 
             // NULL TARGET
             if (!action.target)
@@ -119,8 +165,6 @@ public class UIActionSequence : MonoBehaviour
 
         sequence.OnComplete(() =>
         {
-            Debug.Log("Sequence completed!");
-
             foreach (var target in targets)
             {
                 // Pozíció visszaállítása
@@ -136,7 +180,8 @@ public class UIActionSequence : MonoBehaviour
                     canvasGroup.alpha = originalAlphas[target];
                 }
             }
-        
+
+            uiVars.IsMenuTransitioning = false;        
         });
     }
 

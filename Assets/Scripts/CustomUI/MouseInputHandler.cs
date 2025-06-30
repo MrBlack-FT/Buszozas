@@ -28,10 +28,12 @@ public class MouseInputHandler : MonoBehaviour
     private void OnPointerDown(InputAction.CallbackContext context)
     {
         uiVars.IsPointerDown = true;
+        //Debug.Log("POINTER DOWN: " + Time.frameCount);
     }
 
     private void OnPointerUp(InputAction.CallbackContext context)
     {
         uiVars.IsPointerDown = false;
+        //Debug.Log("POINTER UP: " + Time.frameCount);
     }
 }
