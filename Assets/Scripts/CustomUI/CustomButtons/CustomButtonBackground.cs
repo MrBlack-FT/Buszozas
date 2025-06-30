@@ -75,7 +75,9 @@ public class CustomButtonBackground : MonoBehaviour
             Sequence sequence = DOTween.Sequence();
             sequence.Append(GetComponent<Image>().DOColor(new Color(0.5f, 1, 0.5f), duration).SetEase(Ease.OutBack));
             //sequence.OnComplete(() => Debug.Log("Sequence: DOColor completed!"));
-            //GetComponent<Button>().onClick.Invoke();
+            //GetComponent<Button>().onClick.Invoke();      // Nem szabad onCLick Invoke-ot hívni itt
+                                                            // mert különben a gombhoz rendelt események kétszer fognak lefutni!
+
         });
         eventTrigger.triggers.Add(entryDown);
 
