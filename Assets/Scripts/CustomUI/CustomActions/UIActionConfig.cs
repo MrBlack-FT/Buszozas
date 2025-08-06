@@ -6,7 +6,7 @@ public enum ActionType { FadeIn, FadeOut, InvokeEvent }
 public enum ActionTiming { WithPrevious, AfterPrevious }
 
 [System.Serializable]
-public class CustomAction
+public class UIActionConfig
 {
     public ActionType actionType;
     public GameObject target;

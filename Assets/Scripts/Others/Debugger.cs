@@ -66,7 +66,7 @@ public class Debugger : MonoBehaviour
     {
         debugText = "";
 
-        // Persistent logok hozzáadása (például mindig friss állapot)
+        // Persistent logok hozzáadása
         foreach (var kvp in persistentLogs)
         {
             debugText += ColoredString(kvp.Key + ": ", Color.white) + kvp.Value + "\n";

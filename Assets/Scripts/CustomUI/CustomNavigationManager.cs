@@ -107,6 +107,7 @@ public class CustomNavigationManager : MonoBehaviour
         // Ha változott a kiválasztás
         if (CurrentSelected != LastSelected)
         {
+
             // Az előzőleg kiválasztott elem visszaállítása az eredeti színre
             if (LastSelected != null)
             {

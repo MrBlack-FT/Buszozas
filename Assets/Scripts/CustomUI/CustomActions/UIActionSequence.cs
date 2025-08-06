@@ -7,9 +7,6 @@ public class UIActionSequence : MonoBehaviour
     private UIVars uiVars;
     private Debugger debugger;
 
-    public List<CustomAction> osActions;
-    public List<CustomAction> csActions;
-
     private Sequence sequence;
 
     // Colored boxes:🟩, 🟦, 🟨, 🟧, 🟫, 🟪, 🟥
@@ -41,35 +38,16 @@ public class UIActionSequence : MonoBehaviour
         }
     }
     
-    public void OpenSettings()
-    {
-        if(uiVars.IsMenuTransitioning)
-        {
-            Debug.LogWarning("Menu is already transitioning, skipping OpenSettings action.");
-            return;
-        }
-
-        HandleActions(osActions, "OPENING SETTINGS");
-    }
-
-    public void CloseSettings()
-    {
-        if(uiVars.IsMenuTransitioning)
-        {
-            Debug.LogWarning("Menu is already transitioning, skipping CloseSettings action.");
-            return;
-        }
-
-        HandleActions(csActions, "CLOSING SETTINGS");
-    }
-
     private Dictionary<GameObject, Vector3> originalPositions = new Dictionary<GameObject, Vector3>();
     private Dictionary<GameObject, float> originalAlphas = new Dictionary<GameObject, float>();
 
-    private void HandleActions(List<CustomAction> actions, string actionName)
+    public void BuildAndRunSequence(List<UIActionConfig> actions)
     {
+        System.Diagnostics.Stopwatch stopwatch = System.Diagnostics.Stopwatch.StartNew();
+
         List<GameObject> targets = new List<GameObject>();
 
+        // Eredeti pozíciók és alpha értékek mentése
         foreach(var action in actions)
         {
             if (action.target != null && !targets.Contains(action.target))
@@ -92,8 +70,10 @@ public class UIActionSequence : MonoBehaviour
 
         uiVars.IsMenuTransitioning = true;
 
+        Debug.Log($"{stopwatch.ElapsedMilliseconds} ms has elapsed after saving original positions and alphas for {targets.Count} targets.");
         sequence = DOTween.Sequence();
 
+        // Szekvencia felépítése
         for (int i = 0; i < actions.Count; i++)
         {
             var action = actions[i];
@@ -130,6 +110,7 @@ public class UIActionSequence : MonoBehaviour
             Vector3 originalPosition = originalPositions[action.target];
             Vector3 offset = GetDirectionOffset(action.direction);
 
+            // Action típusok kezelése
             if (action.actionType == ActionType.FadeIn)
             {
                 action.target.transform.localPosition = originalPosition + offset;
@@ -163,8 +144,14 @@ public class UIActionSequence : MonoBehaviour
             }
         }
 
+        Debug.Log($"{stopwatch.ElapsedMilliseconds} ms has elapsed, sequence built with {actions.Count} actions.");
+
         sequence.OnComplete(() =>
         {
+            Debug.Log($"{stopwatch.ElapsedMilliseconds} ms has elapsed, sequence completed!");
+            stopwatch.Stop();
+
+            // Eredeti pozíciók és alpha értékek visszaállítása
             foreach (var target in targets)
             {
                 // Pozíció visszaállítása
