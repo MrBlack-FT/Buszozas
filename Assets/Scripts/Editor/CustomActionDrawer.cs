@@ -26,7 +26,7 @@ public class CustomActionDrawer : PropertyDrawer
         }
 
         // Egy extra sor az üres hely számára
-        lines += 1;
+        lines += 2;
 
         return EditorGUIUtility.singleLineHeight * lines + 4 + 1;
     }
@@ -64,11 +64,11 @@ public class CustomActionDrawer : PropertyDrawer
             r.y += EditorGUI.GetPropertyHeight(unityEventProp, true) + 2;
         }
 
-        if (!IsFirstElement(property))
-        {
+        //if (!IsFirstElement(property))
+        //{
             EditorGUI.PropertyField(r, timingProp);
             r.y += EditorGUIUtility.singleLineHeight + 2;
-        }
+        //}
 
         r.y += EditorGUIUtility.singleLineHeight;
     }

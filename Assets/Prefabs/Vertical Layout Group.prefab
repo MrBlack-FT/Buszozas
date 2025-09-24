@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 6215063391010070027}
   - component: {fileID: 2255463010752260563}
   - component: {fileID: 6000658964179518253}
+  - component: {fileID: 475978192794397397}
   m_Layer: 5
   m_Name: Vertical Layout Group
   m_TagString: Untagged
@@ -132,3 +133,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   radius: 20
   image: {fileID: 2050781953057157077}
+--- !u!225 &475978192794397397
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 679076737509362436}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0

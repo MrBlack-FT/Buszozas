@@ -11,6 +11,7 @@ public class UIActionSequence : MonoBehaviour
 
     // Colored boxes:🟩, 🟦, 🟨, 🟧, 🟫, 🟪, 🟥
 
+    //Az Awake-ben keresi meg a szükséges komponenseket. Ha nem találja, warning-ot ír ki a konzolra.
     private void Awake()
     {
         uiVars = GameObject.Find("UIVars").GetComponent<UIVars>();
@@ -29,6 +30,7 @@ public class UIActionSequence : MonoBehaviour
         }
     }
 
+    // Update-ben frissíti a Debugger-t az IsMenuTransitioning státuszával.
     private void Update()
     {
         if (debugger != null)
@@ -43,6 +45,16 @@ public class UIActionSequence : MonoBehaviour
 
     public void BuildAndRunSequence(List<UIActionConfig> actions)
     {
+        /*
+        string debugLogstring = "";
+        foreach (var action in actions)
+        {
+            debugLogstring += $"\n🟩 Action: {action.actionType} \n\t🟦 Target: {action.target} \n\t🟨 Duration: {action.duration} \n\t🟧 Direction: {action.direction} \n\t🟫 Timing: {action.timing}";
+        }
+        debugLogstring += $"\n🟪 Total Actions: {actions.Count}";
+        Debug.Log(debugLogstring);
+        */
+
         System.Diagnostics.Stopwatch stopwatch = System.Diagnostics.Stopwatch.StartNew();
 
         List<GameObject> targets = new List<GameObject>();
@@ -70,85 +82,91 @@ public class UIActionSequence : MonoBehaviour
 
         uiVars.IsMenuTransitioning = true;
 
-        Debug.Log($"{stopwatch.ElapsedMilliseconds} ms has elapsed after saving original positions and alphas for {targets.Count} targets.");
+        //Debug.Log($"{stopwatch.ElapsedMilliseconds} ms telt el miután mentésre került {targets.Count} target eredeti pozíciója és alpha értéke.");
         sequence = DOTween.Sequence();
 
         // Szekvencia felépítése
         for (int i = 0; i < actions.Count; i++)
         {
             var action = actions[i];
-            //Debug.Log("Action: " + action.actionType + " \n\tTarget: " + action.target + " \n\tDuration: " + action.duration + " \n\tDirection: " + action.direction + " \n\tTiming: " + action.timing);
-
-            // NULL TARGET
-            if (!action.target)
+            
+            switch (action.actionType)
             {
-                Debug.LogWarning("Missing target on action: " + action.actionType);
-                continue;
-            }
+                case ActionType.InvokeEvent:
+                    // UNITY EVENT - nem kell target
+                    if (i == 0 || action.timing == ActionTiming.AfterPrevious)
+                    {
+                        sequence.AppendCallback(() => action.unityEvent?.Invoke());
+                    }
+                    else if (action.timing == ActionTiming.WithPrevious)
+                    {
+                        sequence.JoinCallback(() => action.unityEvent?.Invoke());
+                    }
+                    break;
 
-            // UNITY EVENT
-            if (action.actionType == ActionType.InvokeEvent)
-            {
-                if (i == 0 || action.timing == ActionTiming.AfterPrevious)
-                {
-                    sequence.AppendCallback(() => action.unityEvent?.Invoke());
-                }
-                else if (action.timing == ActionTiming.WithPrevious)
-                {
-                    sequence.JoinCallback(() => action.unityEvent?.Invoke());
-                }
-                continue;
-            }
+                case ActionType.FadeIn:
+                case ActionType.FadeOut:
+                    // NULL TARGET ellenőrzés FadeIn/FadeOut esetén
+                    if (!action.target)
+                    {
+                        Debug.LogWarning("Missing target on action: " + action.actionType);
+                        break;
+                    }
 
-            var canvasGroup = action.target.GetComponent<CanvasGroup>();
-            if (!canvasGroup)
-            {
-                Debug.LogWarning("Missing CanvasGroup on " + action.target.name);
-                continue;
-            }
+                    var canvasGroup = action.target.GetComponent<CanvasGroup>();
+                    if (!canvasGroup)
+                    {
+                        Debug.LogWarning("Missing CanvasGroup on " + action.target.name + "    | Parent: " + action.target?.transform.parent?.name);
+                        break;
+                    }
 
-            Vector3 originalPosition = originalPositions[action.target];
-            Vector3 offset = GetDirectionOffset(action.direction);
+                    Vector3 originalPosition = originalPositions[action.target];
+                    Vector3 offset = GetDirectionOffset(action.direction);
 
-            // Action típusok kezelése
-            if (action.actionType == ActionType.FadeIn)
-            {
-                action.target.transform.localPosition = originalPosition + offset;
-                canvasGroup.alpha = 0;
+                    if (action.actionType == ActionType.FadeIn)
+                    {
+                        action.target.transform.localPosition = originalPosition + offset;
+                        canvasGroup.alpha = 0;
 
-                if (i == 0 || action.timing == ActionTiming.AfterPrevious)
-                {
-                    sequence.Append(action.target.transform.DOLocalMove(originalPosition, action.duration).SetEase(Ease.OutCubic));
-                    sequence.Join(canvasGroup.DOFade(1f, action.duration));
-                }
-                else if (action.timing == ActionTiming.WithPrevious)
-                {
-                    sequence.Join(action.target.transform.DOLocalMove(originalPosition, action.duration).SetEase(Ease.OutCubic));
-                    sequence.Join(canvasGroup.DOFade(1f, action.duration));
-                }
-            }
-            else if (action.actionType == ActionType.FadeOut)
-            {
-                canvasGroup.alpha = 1;
+                        if (i == 0 || action.timing == ActionTiming.AfterPrevious)
+                        {
+                            sequence.Append(action.target.transform.DOLocalMove(originalPosition, action.duration).SetEase(Ease.OutCubic));
+                            sequence.Join(canvasGroup.DOFade(1f, action.duration));
+                        }
+                        else if (action.timing == ActionTiming.WithPrevious)
+                        {
+                            sequence.Join(action.target.transform.DOLocalMove(originalPosition, action.duration).SetEase(Ease.OutCubic));
+                            sequence.Join(canvasGroup.DOFade(1f, action.duration));
+                        }
+                    }
+                    else // ActionType.FadeOut
+                    {
+                        canvasGroup.alpha = 1;
 
-                if (i == 0 || action.timing == ActionTiming.AfterPrevious)
-                {
-                    sequence.Append(canvasGroup.DOFade(0f, action.duration));
-                    sequence.Join(action.target.transform.DOLocalMove(originalPosition + offset, action.duration).SetEase(Ease.InCubic));
-                }
-                else if (action.timing == ActionTiming.WithPrevious)
-                {
-                    sequence.Join(canvasGroup.DOFade(0f, action.duration));
-                    sequence.Join(action.target.transform.DOLocalMove(originalPosition + offset, action.duration).SetEase(Ease.InCubic));
-                }
+                        if (i == 0 || action.timing == ActionTiming.AfterPrevious)
+                        {
+                            sequence.Append(canvasGroup.DOFade(0f, action.duration));
+                            sequence.Join(action.target.transform.DOLocalMove(originalPosition + offset, action.duration).SetEase(Ease.InCubic));
+                        }
+                        else if (action.timing == ActionTiming.WithPrevious)
+                        {
+                            sequence.Join(canvasGroup.DOFade(0f, action.duration));
+                            sequence.Join(action.target.transform.DOLocalMove(originalPosition + offset, action.duration).SetEase(Ease.InCubic));
+                        }
+                    }
+                    break;
+
+                default:
+                    Debug.LogWarning("Unknown ActionType: " + action.actionType);
+                    break;
             }
         }
 
-        Debug.Log($"{stopwatch.ElapsedMilliseconds} ms has elapsed, sequence built with {actions.Count} actions.");
+        //Debug.Log($"{stopwatch.ElapsedMilliseconds} ms has elapsed, sequence built with {actions.Count} actions.");
 
         sequence.OnComplete(() =>
         {
-            Debug.Log($"{stopwatch.ElapsedMilliseconds} ms has elapsed, sequence completed!");
+            //Debug.Log($"{stopwatch.ElapsedMilliseconds} ms has elapsed, sequence completed!");
             stopwatch.Stop();
 
             // Eredeti pozíciók és alpha értékek visszaállítása
