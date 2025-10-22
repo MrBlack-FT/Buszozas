@@ -4,9 +4,45 @@ using DG.Tweening;
 
 public class CustomSceneManager : MonoBehaviour
 {
+    void Awake()
+    {
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    void OnDestroy()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        if (scene.name == "MainMenu")
+        {
+            StartCoroutine(InitializeGameVarsUIAfterDelay());
+        }
+    }
+
+    private System.Collections.IEnumerator InitializeGameVarsUIAfterDelay()
+    {
+        yield return new WaitForEndOfFrame();
+        
+        // Keresd meg a GameVarsUI-t a scene-ben
+        GameVarsUI gameVarsUI = FindFirstObjectByType<GameVarsUI>();
+        if (gameVarsUI != null && GameVars.Instance != null)
+        {
+            gameVarsUI.InitializeUI();
+        }
+    }
+
     public void LoadScene(string sceneName)
     {
         DOTween.KillAll();
+
+        if (sceneName == "MainMenu" && GameVars.Instance != null)
+        {
+            GameVars.Instance.ResetToDefaults();
+        }
+
         if (IsSceneInBuildSettings(sceneName))
         {
             SceneManager.LoadScene(sceneName);
@@ -21,6 +57,13 @@ public class CustomSceneManager : MonoBehaviour
     public void LoadScene(int sceneIndex)
     {
         DOTween.KillAll();
+
+        string targetSceneName = SceneUtility.GetScenePathByBuildIndex(sceneIndex);
+        if (System.IO.Path.GetFileNameWithoutExtension(targetSceneName) == "MainMenu" && GameVars.Instance != null)
+        {
+            GameVars.Instance.ResetToDefaults();
+        }
+
         if (sceneIndex >= 0 && sceneIndex < SceneManager.sceneCountInBuildSettings)
         {
             SceneManager.LoadScene(sceneIndex);
@@ -29,6 +72,23 @@ public class CustomSceneManager : MonoBehaviour
         {
             Debug.LogError($"Scene {sceneIndex} index out of range! Returning to Main Menu!");
             SceneManager.LoadScene("MainMenu");
+        }
+    }
+
+    public void LoadGameSceneIfValid()
+    {
+        if (GameVars.Instance != null && GameVars.Instance.ValidateAndStartSinglePlayerGame())
+        {
+            LoadScene("Game");
+        }
+        else
+        {
+            // Validáció sikertelen - mutasd a warning-ot
+            GameVarsUI gameVarsUI = FindFirstObjectByType<GameVarsUI>();
+            if (gameVarsUI != null)
+            {
+                gameVarsUI.ShowWarning("JÁTÉKOS NEVE NEM LEHET ÜRES!");
+            }
         }
     }
 

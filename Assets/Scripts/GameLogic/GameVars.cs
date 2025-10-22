@@ -1,46 +1,32 @@
 using UnityEngine;
-using UnityEngine.UI;
 using System.Linq;
-using TMPro;
 
 public class GameVars : MonoBehaviour
 {
+    #region Singleton
+    public static GameVars Instance { get; private set; }
+    #endregion
+
     #region Változók
     [SerializeField] private Debugger debugger;
 
     private string busName = "SINGLEPLAYER";
     private int numberOfPlayers = 10;
     private bool reversedPyramidMode;
-    private string[] playerNames = new string[10] { "Player 1", "Player 2", "Player 3", "Player 4", "Player 5", "Player 6", "Player 7", "Player 8", "Player 9", "Player 10" };
-
-    [SerializeField] private TMP_InputField[] playerNameInputFieldsSinglePlayer;
-    [SerializeField] private TMP_InputField busNameInputFieldMultiPlayer;
-    [SerializeField] private Slider numberOfPlayersSliderSinglePlayer;
-    [SerializeField] private Slider numberOfPlayersSliderMultiPlayer;
-    [SerializeField] private Toggle revPyramidModeToggleSinglePlayer;
-    [SerializeField] private Toggle revPyramidModeToggleMultiPlayer;
-
+    private string[] playerNames = new string[10] {"", "", "", "", "", "", "", "", "", ""};
     #endregion
 
     #region Getterek és Setterek
 
     public string BusName { get => busName; set => busName = value; }
-    public bool ReversedPyramidMode
-    {
-        get => reversedPyramidMode;
-        set
-        {
-            reversedPyramidMode = value;
-            SyncToggleStates();
-        }
-    }
+    public bool ReversedPyramidMode { get => reversedPyramidMode; set => reversedPyramidMode = value; }
     public int NumberOfPlayersInGame
     {
         get => numberOfPlayers;
         set
         {
-            numberOfPlayers = Mathf.Clamp(value, 1, 10);
-            SyncSliderValues();
+            numberOfPlayers = Mathf.Clamp(value, 2, 10);
+            ResizePlayerNamesArray();
         }
     }
 
@@ -50,52 +36,34 @@ public class GameVars : MonoBehaviour
 
     void Awake()
     {
+        // Singleton + DontDestroyOnLoad
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(transform.root.gameObject);
+        }
+        else
+        {
+            // Ha már létezik egy példány, akkor az újat törölni kell.
+            Destroy(gameObject);
+            return;
+        }
+
         if (debugger == null)
         {
             debugger = Resources.FindObjectsOfTypeAll<Debugger>().FirstOrDefault();
         }
-
-        if (revPyramidModeToggleSinglePlayer != null)
-        {
-            revPyramidModeToggleSinglePlayer.isOn = ReversedPyramidMode;
-        }
-
-        if (revPyramidModeToggleMultiPlayer != null)
-        {
-            revPyramidModeToggleMultiPlayer.isOn = ReversedPyramidMode;
-        }
     }
 
-    void Start()
-    {
-        if (playerNameInputFieldsSinglePlayer != null)
-        {
-            for (int i = 0; i < playerNameInputFieldsSinglePlayer.Length; i++)
-            {
-                int index = i;
-                playerNameInputFieldsSinglePlayer[i].onValueChanged.AddListener((value) =>
-                {
-                    if (index < numberOfPlayers)
-                        SetPlayerName(index, value);
-                });
-            }
-        }
-        
-        if (busNameInputFieldMultiPlayer != null)
-        {
-            busNameInputFieldMultiPlayer.onValueChanged.AddListener((value) =>
-            {
-                BusName = value;
-            });
-        }
-    }
-
-    // Update is called once per frame
     void Update()
     {
-        debugger.UpdatePersistentLog("NumberOfPlayersInGame", NumberOfPlayersInGame.ToString());
-        debugger.UpdatePersistentLog("ReversedPyramidMode", ReversedPyramidMode.ToString());
-        debugger.UpdatePersistentLog("PlayerNames", string.Join("\n\n", playerNames));
+        if (debugger != null && playerNames != null)
+        {
+            debugger.UpdatePersistentLog("NumberOfPlayersInGame", NumberOfPlayersInGame.ToString());
+            debugger.UpdatePersistentLog("ReversedPyramidMode", debugger.ColoredString(ReversedPyramidMode.ToString(), ReversedPyramidMode ? Color.green : Color.red));
+            debugger.UpdatePersistentLog("PlayerNames", "");
+            debugger.UpdatePersistentLog("", string.Join("\n", playerNames));
+        }
     }
 
     #endregion
@@ -118,10 +86,7 @@ public class GameVars : MonoBehaviour
     {
         if (index >= 0 && index < playerNames.Length)
         {
-            if (playerNameInputFieldsSinglePlayer != null && index < playerNameInputFieldsSinglePlayer.Length)
-            {
-                playerNameInputFieldsSinglePlayer[index].text = playerNames[index];
-            }
+            playerNames[index] = name;
         }
         else
         {
@@ -134,6 +99,7 @@ public class GameVars : MonoBehaviour
     {
         SetPlayerName(clientId, name);
     }
+    // MULTIPLAYER
 
     public void ToggleReversedPyramidMode()
     {
@@ -143,15 +109,6 @@ public class GameVars : MonoBehaviour
     public void SetReversedPyramidMode(bool value)
     {
         ReversedPyramidMode = value;
-        if (revPyramidModeToggleSinglePlayer != null)
-        {
-            revPyramidModeToggleSinglePlayer.isOn = ReversedPyramidMode;
-        }
-
-        if (revPyramidModeToggleMultiPlayer != null)
-        {
-            revPyramidModeToggleMultiPlayer.isOn = ReversedPyramidMode;
-        }
     }
 
     public void SetNumberOfPlayers(float value)
@@ -163,7 +120,6 @@ public class GameVars : MonoBehaviour
     {
         numberOfPlayers = Mathf.Clamp(value, 2, 10);
         ResizePlayerNamesArray();
-        SyncSliderValues();
     }
 
     private void ResizePlayerNamesArray()
@@ -174,30 +130,47 @@ public class GameVars : MonoBehaviour
             for (int i = 0; i < numberOfPlayers; i++)
             {
                 if (playerNames != null && i < playerNames.Length)
-                    newArray[i] = playerNames[i]; // Megőrzi a régi neveket
+                {
+                    // Korábbi nevek megtartása
+                    newArray[i] = playerNames[i];
+                }
                 else
-                    newArray[i] = $"Player {i + 1}";
+                {
+                    //newArray[i] = $"Player {i + 1}";
+                    newArray[i] = "";
+                }
             }
             playerNames = newArray;
         }
     }
 
-    private void SyncToggleStates()
+    public void ResetToDefaults()
     {
-        if (revPyramidModeToggleSinglePlayer != null)
-            revPyramidModeToggleSinglePlayer.isOn = reversedPyramidMode;
-
-        if (revPyramidModeToggleMultiPlayer != null)
-            revPyramidModeToggleMultiPlayer.isOn = reversedPyramidMode;
+        BusName = "SINGLEPLAYER";
+        NumberOfPlayersInGame = 10;
+        ReversedPyramidMode = false;
+        playerNames = new string[10] {"", "", "", "", "", "", "", "", "", ""};
     }
-    
-    private void SyncSliderValues()
+
+    public bool ValidateAndStartSinglePlayerGame()
     {
-        if (numberOfPlayersSliderSinglePlayer != null)
-            numberOfPlayersSliderSinglePlayer.value = numberOfPlayers;
-        
-        if (numberOfPlayersSliderMultiPlayer != null)
-            numberOfPlayersSliderMultiPlayer.value = numberOfPlayers;
+        for (int i = 0; i < NumberOfPlayersInGame; i++)
+        {
+            if (string.IsNullOrWhiteSpace(playerNames[i]))
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public bool ValidateAndStartMultiPlayerGame()
+    {
+        if (string.IsNullOrWhiteSpace(busName))
+        {
+            return false;
+        }
+        return true;
     }
 
     #endregion

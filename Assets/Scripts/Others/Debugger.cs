@@ -69,6 +69,11 @@ public class Debugger : MonoBehaviour
         // Persistent logok hozzáadása
         foreach (var kvp in persistentLogs)
         {
+            if (kvp.Key == "") // Üres kulcs esetén csak az értéket írjuk ki
+            {
+                debugText += kvp.Value + "\n";
+                continue;
+            }
             debugText += ColoredString(kvp.Key + ": ", Color.white) + kvp.Value + "\n";
         }
 
