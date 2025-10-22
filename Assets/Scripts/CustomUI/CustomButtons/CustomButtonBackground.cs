@@ -2,28 +2,26 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using DG.Tweening;
+using System.Linq;
 
 public class CustomButtonBackground : MonoBehaviour
 {
     #region Változók
 
     private UIVars uiVars;
-    private Debugger debugger;
+    [SerializeField] private Debugger debugger;
 
     private CustomPainter customPainter;
-    private Color _backgroundColor;
     [SerializeField] private float duration;
 
     #endregion
 
     #region Getterek és Setterek
-    
-    public Color BackgroundColor    {get => _backgroundColor; set => _backgroundColor = value;}
     public float Duration           {get => duration; set => duration = value;}
 
     #endregion
 
-    #region Awake
+    #region Unity metódusok
 
     private void Awake()
     {
@@ -33,17 +31,10 @@ public class CustomButtonBackground : MonoBehaviour
             Debug.LogWarning("UIVars not found in the scene.");
         }
 
-        GameObject debugPanel = GameObject.Find("!DEBUGGER!");
-        if (debugPanel != null)
+        if (debugger == null)
         {
-            debugger = debugPanel.GetComponent<Debugger>();
+            debugger = Resources.FindObjectsOfTypeAll<Debugger>().FirstOrDefault();
         }
-        else
-        {
-            Debug.LogWarning("!DEBUGGER! GameObject not found in the scene.");
-        }
-
-        BackgroundColor = GetComponent<Image>().color;
 
         customPainter = GameObject.Find("CustomPainter").GetComponent<CustomPainter>();
         if (customPainter == null)
@@ -60,7 +51,7 @@ public class CustomButtonBackground : MonoBehaviour
         {
             //Debug.Log("🟨 PointerEnter");
             if (uiVars.IsPointerDown) return;
-            debugger.CustomDebugLog($"Selecting {gameObject.name} button because PointerEnter event was triggered.");
+            //debugger.CustomDebugLog($"Selecting {gameObject.name} button because PointerEnter event was triggered.");
             EventSystem.current.SetSelectedGameObject(gameObject);
         });
         eventTrigger.triggers.Add(entryEnter);
@@ -96,7 +87,7 @@ public class CustomButtonBackground : MonoBehaviour
 
     private void Update()
     {
-        if (debugger != null)
+        if (debugger != null && debugger.gameObject.activeSelf)
         {
             string PointerDownStatus = debugger.ColoredString(uiVars.IsPointerDown ? "TRUE" : "FALSE", uiVars.IsPointerDown ? Color.green : Color.red);
             debugger.UpdatePersistentLog("isPointerDown", PointerDownStatus);

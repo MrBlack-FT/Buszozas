@@ -1,11 +1,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
+using System.Linq;
 
 public class UIActionSequence : MonoBehaviour
 {
     private UIVars uiVars;
-    private Debugger debugger;
+    [SerializeField] private Debugger debugger;
 
     private Sequence sequence;
 
@@ -19,21 +20,17 @@ public class UIActionSequence : MonoBehaviour
         {
             Debug.LogWarning("UIVars not found in the scene.");
         }
-        GameObject debugPanel = GameObject.Find("!DEBUGGER!");
-        if (debugPanel != null)
+
+        if (debugger == null)
         {
-            debugger = debugPanel.GetComponent<Debugger>();
-        }
-        else
-        {
-            Debug.LogWarning("!DEBUGGER! GameObject not found in the scene.");
+            debugger = Resources.FindObjectsOfTypeAll<Debugger>().FirstOrDefault();
         }
     }
 
     // Update-ben frissíti a Debugger-t az IsMenuTransitioning státuszával.
     private void Update()
     {
-        if (debugger != null)
+        if (debugger != null && debugger.gameObject.activeSelf)
         {
             string isMenuTransitioningStatus = debugger.ColoredString(uiVars.IsMenuTransitioning ? "TRUE" : "FALSE", uiVars.IsMenuTransitioning ? Color.green : Color.red);
             debugger.UpdatePersistentLog("IsMenuTransitioning", isMenuTransitioningStatus);
@@ -110,14 +107,14 @@ public class UIActionSequence : MonoBehaviour
                     if (!action.target)
                     {
                         Debug.LogWarning("Missing target on action: " + action.actionType);
-                        break;
+                        continue;
                     }
 
                     var canvasGroup = action.target.GetComponent<CanvasGroup>();
                     if (!canvasGroup)
                     {
                         Debug.LogWarning("Missing CanvasGroup on " + action.target.name + "    | Parent: " + action.target?.transform.parent?.name);
-                        break;
+                        continue;
                     }
 
                     Vector3 originalPosition = originalPositions[action.target];
@@ -154,7 +151,7 @@ public class UIActionSequence : MonoBehaviour
                             sequence.Join(action.target.transform.DOLocalMove(originalPosition + offset, action.duration).SetEase(Ease.InCubic));
                         }
                     }
-                    break;
+                    continue;
 
                 default:
                     Debug.LogWarning("Unknown ActionType: " + action.actionType);
@@ -202,6 +199,8 @@ public class UIActionSequence : MonoBehaviour
                 return new Vector3(-100, 0, 0);
             case Direction.RIGHT:
                 return new Vector3(100, 0, 0);
+            case Direction.NONE:
+                return Vector3.zero;
             default:
                 Debug.LogWarning("Unknown direction: " + direction);
                 return Vector3.zero;

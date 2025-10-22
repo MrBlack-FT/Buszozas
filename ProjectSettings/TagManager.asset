@@ -6,6 +6,13 @@ TagManager:
   tags:
   - Interactive Panel
   - Button
+  - EMPTY
+  - Toggle
+  - Slider
+  - Dropdown
+  - DropdownItem
+  - DropdownItemBackground
+  - DropdownScrollBar
   layers:
   - Default
   - TransparentFX

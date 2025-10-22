@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.Events;
 
-public enum Direction { UP, DOWN, LEFT, RIGHT }
+public enum Direction { UP, DOWN, LEFT, RIGHT, NONE }
 public enum ActionType { FadeIn, FadeOut, InvokeEvent }
 public enum ActionTiming { WithPrevious, AfterPrevious }
 

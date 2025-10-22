@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using System.Linq;
 
 public class CustomNavigationManager : MonoBehaviour
 {
@@ -8,12 +9,12 @@ public class CustomNavigationManager : MonoBehaviour
 
     [SerializeField] private UIVars uiVars;
     [SerializeField] private CustomPainter customPainter;
+    [SerializeField] private Debugger debugger;
     
     private GameObject _currentActivePanel;
     private GameObject _currentSelected;
     private GameObject _lastSelected;
 
-    private Debugger debugger;
 
     #endregion
 
@@ -31,14 +32,9 @@ public class CustomNavigationManager : MonoBehaviour
 
     private void Awake()
     {
-        GameObject debugPanel = GameObject.Find("!DEBUGGER!");
-        if (debugPanel != null)
+        if (debugger == null)
         {
-            debugger = debugPanel.GetComponent<Debugger>();
-        }
-        else
-        {
-            Debug.LogWarning("!DEBUGGER! GameObject not found in the scene.");
+            debugger = Resources.FindObjectsOfTypeAll<Debugger>().FirstOrDefault();
         }
 
         if (uiVars == null)
@@ -54,6 +50,7 @@ public class CustomNavigationManager : MonoBehaviour
 
     private void Start()
     {
+        /*
         foreach (GameObject panel in uiVars.InteractivePanels)
         {
             // Keresd meg az összes Selectable komponenst a panel gyermekeiben
@@ -64,10 +61,16 @@ public class CustomNavigationManager : MonoBehaviour
                 customPainter.SaveGOColorToDictionary(selectable.gameObject);
             }
         }
+        */
     }
 
     private void Update()
     {
+        if (Input.GetKeyDown(KeyCode.D))
+        {
+            debugger.gameObject.SetActive(!debugger.gameObject.activeSelf);
+        }
+
         // Ellenőrizzük, hogy változott-e az aktív panel
         GameObject newActivePanel = GetActivePanel();
         if (newActivePanel != CurrentActivePanel)
@@ -78,7 +81,10 @@ public class CustomNavigationManager : MonoBehaviour
             // Kijelöljük az első Selectable elemet az új aktív panelen
             if (CurrentActivePanel != null)
             {
-                debugger.CustomDebugLog($"Selecting first selectable in {CurrentActivePanel.name} panel");
+                if (debugger != null && debugger.gameObject.activeSelf)
+                {
+                    debugger.CustomDebugLog($"Selecting first selectable in {CurrentActivePanel.name} panel");
+                }
                 SelectFirstSelectable(CurrentActivePanel);
             }
         }
@@ -107,21 +113,64 @@ public class CustomNavigationManager : MonoBehaviour
         // Ha változott a kiválasztás
         if (CurrentSelected != LastSelected)
         {
-
             // Az előzőleg kiválasztott elem visszaállítása az eredeti színre
             if (LastSelected != null)
             {
-                customPainter.ResetColor(LastSelected);
+                if (LastSelected.name == "Blocker") return;
+
+                // Ha a LastSelected slider, akkor a handle-t állítjuk vissza
+                if (LastSelected.CompareTag("Slider"))
+                {
+                    /*
+                    Slider slider = LastSelected.GetComponent<Slider>();
+                    if (slider != null && slider.handleRect != null)
+                    {
+                        customPainter.ResetColor(slider.handleRect.gameObject);
+                    }
+                    */
+                    customPainter.ResetColor(LastSelected.GetComponent<Slider>().handleRect.gameObject);
+                }
+                else if (LastSelected.CompareTag("Toggle"))     // Ha toggle, akkor a Background-ot
+                {
+                    customPainter.ResetColor(LastSelected.transform.Find("Background").gameObject);
+                }
+                else if (LastSelected.CompareTag("DropdownItem"))
+                {
+                    customPainter.ResetColor(LastSelected.transform.Find("Item Background").gameObject);
+                }
+                else
+                {
+                    customPainter.ResetColor(LastSelected);
+                }
             }
 
             // Az aktuálisan kiválasztott elem háttérszínének beállítása narancsra
             if (CurrentSelected != null)
             {
-                customPainter.ChangeColor(CurrentSelected, new Color(1f, 0.5f, 0f)); // Narancssárga
+                if (CurrentSelected.name == "Blocker") return;
+
+                // Ha a CurrentSelected slider, akkor a handle-t állítjuk be
+                Slider slider = CurrentSelected.GetComponent<Slider>();
+                if (slider != null && slider.handleRect != null)
+                {
+                    customPainter.ChangeColor(slider.handleRect.gameObject, new Color(1f, 0.5f, 0f)); // Narancssárga
+                }
+                else if (CurrentSelected.CompareTag("Toggle"))  // Ha toggle, akkor a Background-ot
+                {
+                    customPainter.ChangeColor(CurrentSelected.transform.Find("Background").gameObject, new Color(1f, 0.5f, 0f));
+                }
+                else if (CurrentSelected.CompareTag("DropdownItem"))
+                {
+                    customPainter.ChangeColor(CurrentSelected.transform.Find("Item Background").gameObject, new Color(1f, 0.5f, 0f));
+                }
+                else
+                {
+                    customPainter.ChangeColor(CurrentSelected, new Color(1f, 0.5f, 0f));
+                }
             }
 
             // Persistent státusz frissítése a Debugger-ben
-            if (debugger != null)
+            if (debugger != null && debugger.gameObject.activeSelf)
             {
                 string currentStatus = debugger.ColoredString(CurrentSelected != null ? CurrentSelected.name : "NULL", 
                                                      CurrentSelected != null ? Color.green : Color.red);

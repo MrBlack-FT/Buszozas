@@ -11,9 +11,11 @@ public class UIActionTriggers : MonoBehaviour
 
     #endregion
 
+    #region Inspector Változók
+
     // Inspector-ban megjelenő listák, elemeik ott vannak meghatározva.
-    [Header("UI Action Configurations")]
-    [Header("Itt kell beállítani az animációkat és eseményeket!")]
+    [Header("UI FELÜLETEK KONFIGURÁLÁSA")]
+    [Space(10)]
     [Header("Singleplayer")]
     public List<UIActionConfig> OpenSingleplayerActions;
     public List<UIActionConfig> CloseSingleplayerActions;
@@ -35,6 +37,16 @@ public class UIActionTriggers : MonoBehaviour
     [Header("Exit")]
     public List<UIActionConfig> OpenExitActions;
     public List<UIActionConfig> CloseExitActions;
+
+    [Space(10)]
+
+    [Header("MELLÉK PANELEK")]
+    [Space(10)]
+    [Header("Multiplayer Lobby")]
+    public List<UIActionConfig> OpenMultiplayerLobbyActions;
+    public List<UIActionConfig> CloseMultiplayerLobbyActions;
+
+    #endregion
 
     #region Awake
     private void Awake()

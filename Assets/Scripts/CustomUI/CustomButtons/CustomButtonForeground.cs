@@ -47,6 +47,14 @@ public class CustomButtonForeground : MonoBehaviour
 
     #region Metódusok
 
+    public void SetInteractiveState(bool state)
+    {
+        if (state != IsInteractive)
+        {
+            ChangeInteractiveState();
+        }
+    }
+
     public void ChangeInteractiveState()
     {
         if (IsInteractive)
@@ -62,6 +70,5 @@ public class CustomButtonForeground : MonoBehaviour
             GetComponent<Button>().interactable = true;
         }
     }
-    
     #endregion
 }
