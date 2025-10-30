@@ -40,7 +40,11 @@ public class CustomPainter : MonoBehaviour
 
             foreach (Selectable selectable in selectables)
             {
-                if (selectable.name == "Item" || selectable.CompareTag("DropdownItem") || selectable.CompareTag("DropdownScrollBar")) continue;
+                if (selectable.name == "Item" ||
+                    selectable.CompareTag("DropdownItem") ||
+                    selectable.CompareTag("DropdownScrollBar") ||
+                    selectable.CompareTag("SkipPaint"))
+                    continue;
 
                 Image image = selectable.GetComponent<Image>();
 
@@ -167,7 +171,7 @@ public class CustomPainter : MonoBehaviour
                 Debug.LogWarning($"ChangeColor - GameObject \"{gameObject.name}\" does not have an Image component.");
             }
         }
-        else
+        else if (!gameObject.CompareTag("SkipPaint"))
         {
             Debug.LogWarning($"ChangeColor - GameObject \"{gameObject.name}\" is not in the original colors dictionary!  |  nincs az eredeti színek szótárában!");
         }
@@ -220,7 +224,7 @@ public class CustomPainter : MonoBehaviour
                 Debug.LogWarning($"ResetColor - GameObject {gameObject.name} does not have an Image component.");
             }
         }
-        else
+        else if (!gameObject.CompareTag("SkipPaint"))
         {
             Debug.LogWarning($"ResetColor - GameObject {gameObject.name} is not in the original colors dictionary!  |  nincs az eredeti színek szótárában!");
         }

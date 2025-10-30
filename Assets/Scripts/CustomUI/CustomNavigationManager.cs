@@ -83,7 +83,7 @@ public class CustomNavigationManager : MonoBehaviour
             {
                 if (debugger != null && debugger.gameObject.activeSelf)
                 {
-                    debugger.CustomDebugLog($"Selecting first selectable in {CurrentActivePanel.name} panel");
+                    //debugger.CustomDebugLog($"Selecting first selectable in {CurrentActivePanel.name} panel");
                 }
                 SelectFirstSelectable(CurrentActivePanel);
             }
@@ -98,13 +98,13 @@ public class CustomNavigationManager : MonoBehaviour
             if (LastSelected != null)
             {
                 // Jelöljük ki az utoljára kijelölt elemet
-                debugger.CustomDebugLog($"Re-selecting last selected: {LastSelected.name}");
+                //debugger.CustomDebugLog($"Re-selecting last selected: {LastSelected.name}");
                 EventSystem.current.SetSelectedGameObject(LastSelected);
             }
             else if (CurrentActivePanel != null)
             {
                 // Ha nincs utoljára kijelölt elem, jelöljük ki az aktuális panel első elemét
-                debugger.CustomDebugLog($"Selecting first selectable in {CurrentActivePanel.name} panel \n because there is no last selected element");
+                //debugger.CustomDebugLog($"Selecting first selectable in {CurrentActivePanel.name} panel \n because there is no last selected element");
                 SelectFirstSelectable(CurrentActivePanel);
             }
             else    return; // Ha nincs aktív panel, nem csinálunk semmit

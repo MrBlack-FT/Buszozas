@@ -13,6 +13,7 @@ public class Deck
         cards = new List<Card>();
         usedCards = new List<Card>();
         InitializeDeck();
+        Shuffle();
     }
 
     private void InitializeDeck()
@@ -41,12 +42,12 @@ public class Deck
     {
         System.Random rand = new System.Random();
         int n = cards.Count;
-        for (int i = n - 1; i > 0; i--)
+        for (int I = n - 1; I > 0; I--)
         {
-            int j = rand.Next(0, i + 1);
-            Card temp = cards[i];
-            cards[i] = cards[j];
-            cards[j] = temp;
+            int J = rand.Next(0, I + 1);
+            Card temp = cards[I];
+            cards[I] = cards[J];
+            cards[J] = temp;
         }
     }
 

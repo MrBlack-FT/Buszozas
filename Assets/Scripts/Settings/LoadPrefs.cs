@@ -21,6 +21,12 @@ public class LoadPrefs : MonoBehaviour
 
     private void Start()
     {
+        if(volumeText == null || volumeSlider == null || resolutionDropdown == null || fullscreenToggle == null || vsyncToggle == null)
+        {
+            Debug.LogWarning("LoadPrefs: One or more UI components are not assigned in the inspector.");
+            return;
+        }
+        
         if (canUse)
         {
             StartCoroutine(LoadSettingsWithDelay());

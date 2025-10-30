@@ -17,6 +17,7 @@ public class Card
         _cardBackType = backType;
         _cardValue = value;
     }
+
     public CardType GetCardType()
     {
         return _cardType;

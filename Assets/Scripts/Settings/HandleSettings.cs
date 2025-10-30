@@ -38,6 +38,12 @@ public class HandleSettings : MonoBehaviour
     #region Awake és Start
     void Awake()
     {
+        if (resolutionDropdown == null || fullscreenToggle == null || vsyncToggle == null || volumeSlider == null || applyButton == null)
+        {
+            Debug.LogWarning("HandleSettings: One or more UI components are not assigned in the inspector.");
+            return;
+        }
+
         #if UNITY_ANDROID// || UNITY_EDITOR
             resolutionTextTitle.gameObject.SetActive(false);
             resolutionDropdown.gameObject.SetActive(false);
@@ -56,6 +62,12 @@ public class HandleSettings : MonoBehaviour
 
     void Start()
     {
+        if (resolutionDropdown == null || fullscreenToggle == null || vsyncToggle == null || volumeSlider == null || applyButton == null)
+        {
+            Debug.LogWarning("HandleSettings: One or more UI components are not assigned in the inspector.");
+            return;
+        }
+
         applyButton.interactable = false;
         
         // Load initial settings - if they don't exist, set default values in second parameter

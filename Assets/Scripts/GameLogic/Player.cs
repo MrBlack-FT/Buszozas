@@ -1,21 +1,23 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-
 [System.Serializable]
 public class Player
 {
     private int _playerID;
     private string _playerName;
     private int _playerScore;
-    private List<Card> playerCards;
+    private List<Card> _playerCards;
+
+    private TippValue _currentTipp;
 
     public Player(int id, string name)
     {
         _playerID = id;
         _playerName = name;
         _playerScore = 0;
-        playerCards = new List<Card>(); // MAX 5 kártya lehet nála!
+        _playerCards = new List<Card>(); // MAX 5 kártya lehet nála!
+        _currentTipp = TippValue.NONE;
     }
 
     public int GetPlayerID()
@@ -33,6 +35,19 @@ public class Player
         return _playerScore;
     }
 
+    public Card GetPlayerCardAtIndex(int index)
+    {
+        if (index >= 0 && index < _playerCards.Count)
+        {
+            return _playerCards[index];
+        }
+        else
+        {
+            Debug.LogWarning($"Index {index} is out of range for player {_playerName}'s cards.");
+            return null;
+        }
+    }
+
     public void SetPlayerName(string name)
     {
         _playerName = name;
@@ -45,26 +60,36 @@ public class Player
 
     public List<Card> GetPlayerCards()
     {
-        return playerCards;
+        return _playerCards;
+    }
+
+    public TippValue GetTipp()
+    {
+        return _currentTipp;
+    }
+
+    public void SetTipp(TippValue tipp)
+    {
+        _currentTipp = tipp;
     }
 
     public void AddCardToPlayer(Card card)
     {
-        if (playerCards.Count < 5)
+        if (_playerCards.Count < 5)
         {
-            playerCards.Add(card);
+            _playerCards.Add(card);
         }
         else
         {
-            Debug.LogWarning($"Player {_playerName} already has 5 cards. Cannot add more.");
+            Debug.LogWarning($"Player \"{_playerName}\" already has 5 cards. Cannot add more.");
         }
     }
 
     public void RemoveCardFromPlayer(Card card)
     {
-        if (playerCards.Contains(card))
+        if (_playerCards.Contains(card))
         {
-            playerCards.Remove(card);
+            _playerCards.Remove(card);
         }
         else
         {
@@ -74,9 +99,9 @@ public class Player
 
     public void RemoveCardFromPlayerAtIndex(int index)
     {
-        if (index >= 0 && index < playerCards.Count)
+        if (index >= 0 && index < _playerCards.Count)
         {
-            playerCards.RemoveAt(index);
+            _playerCards.RemoveAt(index);
         }
         else
         {
@@ -91,6 +116,17 @@ public class Player
 
     public void ClearPlayerCards()
     {
-        playerCards.Clear();
+        _playerCards.Clear();
+    }
+
+    public string GetPlayerStatus()
+    {
+        string statusString = "Player ID: " + GetPlayerID() + ", Name: " + GetPlayerName() + ", Score: " + GetPlayerScore() + "\n";
+        statusString += "\tCards: ";
+        foreach (var card in _playerCards)
+        {
+            statusString += "[" + card.GetCardBackType() + "_" + card.GetCardType() + "_" + card.GetCardValue() + "] ";
+        }
+        return statusString;
     }
 }

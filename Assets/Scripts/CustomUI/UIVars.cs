@@ -32,6 +32,17 @@ public class UIVars : MonoBehaviour
         {
             Debug.LogWarning("Interactive panels are not set in the Inspector!");
         }
+        else
+        {
+            for (int i = 0; i < interactivePanels.Length; i++)
+            {
+                if (interactivePanels[i] == null)
+                {
+                    Debug.LogWarning("UIVars: An interactive panel reference is missing at index " + i + "! Placing a placeholder GameObject.");
+                    interactivePanels[i] = new GameObject("EmptyPanelPlaceholder_" + i);
+                }
+            }
+        }
     }
 
     #endregion

@@ -8,12 +8,16 @@ public class GameVars : MonoBehaviour
     #endregion
 
     #region Változók
+    [Header("Debug")]
     [SerializeField] private Debugger debugger;
 
-    private string busName = "SINGLEPLAYER";
-    private int numberOfPlayers = 10;
-    private bool reversedPyramidMode;
-    private string[] playerNames = new string[10] {"", "", "", "", "", "", "", "", "", ""};
+    [Header("Game Settings")]
+    [SerializeField] private string busName = "SINGLEPLAYER";
+    [SerializeField] private int numberOfPlayers = 10;
+    [SerializeField] private bool reversedPyramidMode;
+    
+    [Header("Player Names")]
+    [SerializeField] private string[] playerNames = new string[10] {"", "", "", "", "", "", "", "", "", ""};
     #endregion
 
     #region Getterek és Setterek
@@ -57,12 +61,19 @@ public class GameVars : MonoBehaviour
 
     void Update()
     {
+        /*
         if (debugger != null && playerNames != null)
         {
             debugger.UpdatePersistentLog("NumberOfPlayersInGame", NumberOfPlayersInGame.ToString());
             debugger.UpdatePersistentLog("ReversedPyramidMode", debugger.ColoredString(ReversedPyramidMode.ToString(), ReversedPyramidMode ? Color.green : Color.red));
             debugger.UpdatePersistentLog("PlayerNames", "");
             debugger.UpdatePersistentLog("", string.Join("\n", playerNames));
+        }
+        */
+
+        if (Input.GetKeyDown(KeyCode.P))
+        {
+            PrintCurrentGameVars();
         }
     }
 
@@ -171,6 +182,21 @@ public class GameVars : MonoBehaviour
             return false;
         }
         return true;
+    }
+
+    //DEBUG!
+    public void PrintCurrentGameVars()
+    {
+        string gameVarsText = "";
+        gameVarsText += $"Bus Name: {BusName}\n";
+        gameVarsText += $"Number of Players: {NumberOfPlayersInGame}\n";
+        gameVarsText += $"Reversed Pyramid Mode: {ReversedPyramidMode}\n";
+        gameVarsText += "Player Names:\n";
+        for (int i = 0; i < NumberOfPlayersInGame; i++)
+        {
+            gameVarsText += $"\tPlayer {i + 1}: {GetPlayerName(i)}\n";
+        }
+        Debug.Log(gameVarsText);
     }
 
     #endregion

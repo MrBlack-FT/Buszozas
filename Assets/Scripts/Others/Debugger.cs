@@ -86,7 +86,7 @@ public class Debugger : MonoBehaviour
             debugText += panel.gameObject.name + ": " + (panel.activeInHierarchy ? ColoredString("Active", Color.green) : ColoredString("Inactive", Color.red)) + "\n";
             foreach (var selectable in panel.GetComponentsInChildren<Selectable>())
             {
-                debugText += "  " + selectable.gameObject.name + ": " + (EventSystem.current.currentSelectedGameObject == selectable.gameObject ? ColoredString("Selected", Color.green) : ColoredString("Not Selected", Color.red)) + "\n";
+                //debugText += "  " + selectable.gameObject.name + ": " + (EventSystem.current.currentSelectedGameObject == selectable.gameObject ? ColoredString("Selected", Color.green) : ColoredString("Not Selected", Color.red)) + "\n";
             }
         }
 
