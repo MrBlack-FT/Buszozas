@@ -76,6 +76,8 @@ public class CardManager : MonoBehaviour
             Debug.LogWarning("CustomPainter not found in the scene.");
         }
 
+        // ====================
+
         cardBackgroundColor = GetComponent<Image>();
 
         EventTrigger eventTrigger = GetComponent<EventTrigger>() ?? gameObject.AddComponent<EventTrigger>();
@@ -110,8 +112,7 @@ public class CardManager : MonoBehaviour
             IsDragging = true;
             
             // KILÉPÉS A LAYOUT-BÓL: Parent átállítás Player-re
-            originalParent = transform.parent;
-            originalSiblingIndex = transform.GetSiblingIndex();
+            SaveCardOriginalTransform();
             
             if (playerTransform != null)
             {
@@ -148,8 +149,7 @@ public class CardManager : MonoBehaviour
             // Sikertelen drop esetén visszaállítjuk az eredeti helyre
             if (!successfulDrop && originalParent != null)
             {
-                transform.SetParent(originalParent);
-                transform.SetSiblingIndex(originalSiblingIndex);
+                ResetCardOriginalTransform();
             }
         });
         eventTrigger.triggers.Add(entryUp);
@@ -354,15 +354,16 @@ public class CardManager : MonoBehaviour
         transform.position = worldPos + DragOffset;
     }
 
-    public void AnimateCardFlip(float duration)
+    public void AnimateCardFlip(float duration, System.Action onComplete = null)
     {
         Sequence flipSequence = DOTween.Sequence();
         flipSequence.Append(transform.DORotate(new Vector3(0, 90, 0), duration / 2).SetEase(Ease.InCubic));
         flipSequence.AppendCallback(() => FlipCard());
         flipSequence.Append(transform.DORotate(new Vector3(0, 0, 0), duration / 2).SetEase(Ease.OutCubic));
+        flipSequence.OnComplete(() => onComplete?.Invoke());
     }
 
-        private bool CheckDropOnPiramisCard()
+    private bool CheckDropOnPiramisCard()
     {
         // Raycast az egér pozíciójából
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -374,30 +375,46 @@ public class CardManager : MonoBehaviour
         }
         Debug.Log(debugText);
         debugger.CustomDebugLog($"Checking drop on piramis card for \"{gameObject.name}\". Raycast hits:\n{debugText}");
-        
+
         foreach (var hit in hits)
         {
             if (hit.collider != null && hit.collider.gameObject != gameObject)
             {
+                CardManager droppedOnThisPiramisCard = hit.collider.GetComponent<CardManager>();
                 // Piramis kártyát keresünk (hierarchy: piramisGroup/Row_X/Card_Y)
                 Transform parent = hit.collider.transform.parent;
                 if (parent != null && parent.name.StartsWith("Row_"))
                 {
-                    Debug.Log($"✅ Dropped on piramis card: {hit.collider.gameObject.name}");
-                    
+                    Debug.Log($"CardManager -> CheckDropOnPiramisCard\t✅ Dropped on piramis card: \"{hit.collider.gameObject.name}\"");
+
                     // PlayerManager értesítése
                     if (parentPlayerManager != null && cardSlotIndex >= 0)
                     {
-                        parentPlayerManager.OnCardDroppedToPyramid(cardSlotIndex);
+                        int rowIndex = parent.name[4] - '0'; // Char → Int konverzió ('1' - '0' = 1)
+                        parentPlayerManager.OnCardDroppedToPyramid(cardSlotIndex, droppedOnThisPiramisCard, rowIndex);
                     }
-                    
+
                     return true;
                 }
             }
         }
-        
-        Debug.Log("❌ Not dropped on piramis card - returning to original position");
+
+        Debug.Log("CardManager -> CheckDropOnPiramisCard\t❌ No piramis card detected on drop.");
         return false;
+    }
+
+    public void SaveCardOriginalTransform()
+    {
+        originalParent = transform.parent;
+        originalSiblingIndex = transform.GetSiblingIndex();
+    }
+    public void ResetCardOriginalTransform()
+    {
+        if (originalParent != null)
+        {
+            transform.SetParent(originalParent);
+            transform.SetSiblingIndex(originalSiblingIndex);
+        }
     }
 
     #endregion

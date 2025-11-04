@@ -14,6 +14,7 @@ TagManager:
   - DropdownItemBackground
   - DropdownScrollBar
   - SkipPaint
+  - Tag 2 EMPTY
   layers:
   - Default
   - TransparentFX
@@ -50,6 +51,9 @@ TagManager:
   m_SortingLayers:
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: Overlay
+    uniqueID: 1588697787
     locked: 0
   m_RenderingLayers:
   - Default

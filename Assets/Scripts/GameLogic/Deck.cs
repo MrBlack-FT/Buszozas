@@ -18,9 +18,11 @@ public class Deck
 
     private void InitializeDeck()
     {
-        foreach (CardBackType backType in System.Enum.GetValues(typeof(CardBackType)))
-        {
+        // Csak PIROS és KÉK hátlapú kártyák
+        CardBackType[] backTypes = { CardBackType.RED, CardBackType.BLUE };
 
+        foreach (CardBackType backType in backTypes)
+        {
             foreach (CardType type in System.Enum.GetValues(typeof(CardType)))
             {
                 if (type == CardType.NONE) continue;
@@ -138,8 +140,9 @@ public class Deck
         debugLogstring += $"\tNincs duplikált kártya a használt kártyák között. Megfelelő.\n";
 
         debugLogstring += $"\tHiányzó kártyák ellenőrzése:\n";
-        // Hiányzó kártyák ellenőrzése
-        foreach (CardBackType backType in System.Enum.GetValues(typeof(CardBackType)))
+        // Hiányzó kártyák ellenőrzése (csak PIROS és KÉK)
+        CardBackType[] backTypes = { CardBackType.RED, CardBackType.BLUE };
+        foreach (CardBackType backType in backTypes)
         {
             foreach (CardType type in System.Enum.GetValues(typeof(CardType)))
             {

@@ -50,7 +50,7 @@ public class CustomButtonBackground : MonoBehaviour
         entryEnter.callback.AddListener((eventData) =>
         {
             //Debug.Log("🟨 PointerEnter");
-            if (uiVars.IsPointerDown) return;
+            if (uiVars.IsPointerDown || (!gameObject.GetComponent<Selectable>().interactable)) return;
             //debugger.CustomDebugLog($"Selecting {gameObject.name} button because PointerEnter event was triggered.");
             EventSystem.current.SetSelectedGameObject(gameObject);
         });
@@ -61,6 +61,8 @@ public class CustomButtonBackground : MonoBehaviour
         entryDown.eventID = EventTriggerType.PointerDown;
         entryDown.callback.AddListener((eventData) =>
         {
+            if (!gameObject.GetComponent<Selectable>().interactable) return;
+
             //Debug.Log("🟧 PointerDown");
             uiVars.IsPointerDown = true;
             Sequence sequence = DOTween.Sequence();

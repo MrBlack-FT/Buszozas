@@ -63,6 +63,31 @@ public class Player
         return _playerCards;
     }
 
+    private Card GetPlayersCardAtIndex(int index)
+    {
+        if (index >= 0 && index < _playerCards.Count)
+        {
+            return _playerCards[index];
+        }
+        else
+        {
+            Debug.LogWarning($"Index {index} is out of range for player {_playerName}'s cards.");
+            return null;
+        }
+    }
+
+    private void SetPlayerCard(int index, Card card)
+    {
+        if (index >= 0 && index < _playerCards.Count)
+        {
+            _playerCards[index] = card;
+        }
+        else
+        {
+            Debug.LogWarning($"Index {index} is out of range for player {_playerName}'s cards.");
+        }
+    }
+
     public TippValue GetTipp()
     {
         return _currentTipp;
@@ -102,6 +127,18 @@ public class Player
         if (index >= 0 && index < _playerCards.Count)
         {
             _playerCards.RemoveAt(index);
+        }
+        else
+        {
+            Debug.LogWarning($"Index {index} is out of range for player {_playerName}'s cards.");
+        }
+    }
+
+    public void ChangeCardToEmptyCardAtIndex(int index)
+    {
+        if (index >= 0 && index < _playerCards.Count)
+        {
+            _playerCards[index] = new Card(CardType.NONE, CardBackType.NONE, CardValue.ZERO);
         }
         else
         {

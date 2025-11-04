@@ -46,6 +46,21 @@ public class UIActionTriggers : MonoBehaviour
     public List<UIActionConfig> OpenMultiplayerLobbyActions;
     public List<UIActionConfig> CloseMultiplayerLobbyActions;
 
+    [Space(10)]
+
+    [Header("JÁTÉK")]
+    public List<UIActionConfig> ShowPlayersUIActions;
+    public List<UIActionConfig> HidePlayersUIActions;
+
+    [Header("JÁTÉK MENÜ")]
+    public List<UIActionConfig> OpenPauseMenuActions;
+    public List<UIActionConfig> ClosePauseMenuActions;
+    public List<UIActionConfig> OpenPauseOptionsActions;
+    public List<UIActionConfig> ClosePauseOptionsActions;
+    public List<UIActionConfig> OpenPauseExitActions;
+    public List<UIActionConfig> ClosePauseExitActions;
+
+
     #endregion
 
     #region Awake
@@ -86,6 +101,16 @@ public class UIActionTriggers : MonoBehaviour
 
     public void AddOpenExit() => TheSequenceList.AddRange(OpenExitActions);
     public void AddCloseExit() => TheSequenceList.AddRange(CloseExitActions);
+
+    public void AddShowPlayersUI() => TheSequenceList.AddRange(ShowPlayersUIActions);
+    public void AddHidePlayersUI() => TheSequenceList.AddRange(HidePlayersUIActions);
+
+    public void AddOpenPauseMenu() => TheSequenceList.AddRange(OpenPauseMenuActions);
+    public void AddClosePauseMenu() => TheSequenceList.AddRange(ClosePauseMenuActions);
+    public void AddOpenPauseOptions() => TheSequenceList.AddRange(OpenPauseOptionsActions);
+    public void AddClosePauseOptions() => TheSequenceList.AddRange(ClosePauseOptionsActions);
+    public void AddOpenPauseExit() => TheSequenceList.AddRange(OpenPauseExitActions);
+    public void AddClosePauseExit() => TheSequenceList.AddRange(ClosePauseExitActions);
 
     #endregion
 

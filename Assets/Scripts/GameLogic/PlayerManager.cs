@@ -24,6 +24,8 @@ public class PlayerManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI pointsToGiveText;
     [SerializeField] private Button increaseButton;
 
+    private Transform originalTransform = null;
+
     #endregion
 
     #region Unity metódusok
@@ -63,6 +65,9 @@ public class PlayerManager : MonoBehaviour
         playerId = id;
         player = new Player(id, GameVars.Instance.GetPlayerName(id));
         UpdateUI();
+
+        originalTransform = transform;
+        //Debug.Log($"PlayerManager for {player.GetPlayerName()} initialized. Original Transform saved: {originalTransform.position}");
     }
 
     public void SetPlayerData(Player newPlayer)
@@ -77,7 +82,7 @@ public class PlayerManager : MonoBehaviour
         foreach (var card in cardSlots)
         {
             Selectable selectable = card.GetComponent<Selectable>();
-            if (selectable != null)
+            if (selectable != null && card.CardData != null && card.CardData.GetCardType() != CardType.NONE)
             {
                 selectable.interactable = isActive;
             }
@@ -111,9 +116,31 @@ public class PlayerManager : MonoBehaviour
             return;
         }
 
-        player.RemoveCardFromPlayerAtIndex(slotIndex);
-        // TODO: CardManager resetelése vagy inaktiválása
+        cardSlots[slotIndex].SetEmptyCard();
+        //player.RemoveCardFromPlayerAtIndex(slotIndex);
     }
+
+    public void ChangeCardToEmptyCard(int slotIndex, bool resetTransform)
+    {
+        if (slotIndex < 0 || slotIndex >= 5)
+        {
+            Debug.LogWarning($"PlayerManager: Invalid slot index {slotIndex}");
+            return;
+        }
+
+        Debug.Log($"ChangeCardToEmptyCard called on slotIndex: \"{slotIndex}\"\n" +
+                  $"Card is: {cardSlots[slotIndex].GetCardData().GetCardBackType()} | {cardSlots[slotIndex].GetCardData().GetCardType()} | {cardSlots[slotIndex].GetCardData().GetCardValue()}");
+        cardSlots[slotIndex].SetEmptyCard();
+        Debug.Log($"After SetEmptyCard() slotIndex: \"{slotIndex}\"\n" +
+                  $"Card is: {cardSlots[slotIndex].GetCardData().GetCardBackType()} | {cardSlots[slotIndex].GetCardData().GetCardType()} | {cardSlots[slotIndex].GetCardData().GetCardValue()}");
+        if (resetTransform)
+        {
+            cardSlots[slotIndex].ResetCardOriginalTransform();
+            Debug.Log($"Card Transform after Reset: {cardSlots[slotIndex].transform.position}");
+        }
+    }
+
+
 
     public int GetScore()
     {
@@ -153,6 +180,21 @@ public class PlayerManager : MonoBehaviour
         // TODO: CardManager-ek resetelése
     }
 
+    public Transform GetOriginalTransform()
+    {
+        return originalTransform;
+    }
+
+    public void ResetPosition()
+    {
+        if (originalTransform != null)
+        {
+            transform.position = originalTransform.position;
+            //transform.rotation = originalTransform.rotation;
+            //transform.localScale = originalTransform.localScale;
+        }
+    }
+
     #endregion
 
     #region Pont osztáshoz metódusok
@@ -190,6 +232,14 @@ public class PlayerManager : MonoBehaviour
 
     #region Drag & Drop
 
+    public void SaveCardsOriginalTransforms()
+    {
+        foreach (var card in cardSlots)
+        {
+            card.SaveCardOriginalTransform();
+        }
+    }
+
     public void SetGameEvents(GameEvents events)
     {
         gameEvents = events;
@@ -197,18 +247,22 @@ public class PlayerManager : MonoBehaviour
 
     public void SetCardsDraggable(bool enabled)
     {
-        Debug.Log($"PlayerManager {playerId}: SetCardsDraggable({enabled}) called");
+        //Debug.Log($"PlayerManager {playerId}: SetCardsDraggable({enabled}) called");
         foreach (var card in cardSlots)
         {
-            if (card != null)
+            if (card != null && card.CardData != null && card.CardData.GetCardType() != CardType.NONE)
             {
                 card.SetInteractable(enabled);
-                Debug.Log($"  Card {card.name}: SetInteractable({enabled})");
+                //Debug.Log($"  Card {card.name}: SetInteractable({enabled})");
+            }
+            else
+            {
+                card.SetInteractable(false);
             }
         }
     }
 
-    public void OnCardDroppedToPyramid(int cardSlotIndex)
+    public void OnCardDroppedToPyramid(int cardSlotIndex, CardManager droppedOnThisPiramisCard, int PiramisRowIndex)
     {
         if (cardSlotIndex < 0 || cardSlotIndex >= cardSlots.Length)
         {
@@ -223,7 +277,19 @@ public class PlayerManager : MonoBehaviour
             return;
         }
 
-        gameEvents?.TriggerCardDroppedToPiramis(playerId, cardData, cardSlotIndex);
+        gameEvents?.TriggerCardDroppedToPiramis(playerId, cardData, cardSlotIndex, droppedOnThisPiramisCard, PiramisRowIndex);
+    }
+
+    public void OnCardReturnedToPlayer(int cardSlotIndex)
+    {
+        if (cardSlotIndex < 0 || cardSlotIndex >= cardSlots.Length)
+        {
+            Debug.LogWarning($"Invalid card slot index: {cardSlotIndex}");
+            return;
+        }
+
+        Debug.Log($"RESETTING Card Slot at  {cardSlotIndex} [index] Original Transform");
+        cardSlots[cardSlotIndex].ResetCardOriginalTransform();
     }
 
     #endregion

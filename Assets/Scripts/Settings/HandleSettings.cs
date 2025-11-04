@@ -49,7 +49,6 @@ public class HandleSettings : MonoBehaviour
             resolutionDropdown.gameObject.SetActive(false);
             vsyncTitle.gameObject.SetActive(false);
             vsyncToggle.gameObject.SetActive(false);
-            controlsButton.gameObject.SetActive(true);
 
             fullScreenTitle.rectTransform.anchoredPosition = new Vector2(fullScreenTitle.rectTransform.anchoredPosition.x, 150);
             fullscreenToggle.GetComponent<RectTransform>().anchoredPosition = new Vector2(fullscreenToggle.GetComponent<RectTransform>().anchoredPosition.x, 150);
