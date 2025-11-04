@@ -126,7 +126,7 @@ public class GameManager : MonoBehaviour
             {
                 GameVars.Instance.SetPlayerName(I, $"Player {I + 1}");
             }
-            GameVars.Instance.ReversedPyramidMode = false;
+            GameVars.Instance.ReversedPyramidMode = true;
         }
         
 
@@ -363,11 +363,19 @@ public class GameManager : MonoBehaviour
         */
         
 
-        
+        /*
         currentPhase = GamePhase.Tipp;
         currentRound = 6;
         currentPlayerIndex = 0;
         FillPlayersWithCards();
+        RefreshPlayerUI();
+        NextRound();
+        */
+        
+        
+        currentPhase = GamePhase.Piramis;
+        currentPiramisRow = 6;
+        currentPlayerIndex = 0;
         RefreshPlayerUI();
         NextRound();
         
@@ -447,10 +455,10 @@ public class GameManager : MonoBehaviour
                     currentPhase = GamePhase.Piramis;
                     FillPiramisWithCards();
 
-                    gameDisplay.ShowToast(toast_FeedbackMessage, "Tipp kör vége!", 2f);
+                    gameDisplay.ShowToast(toast_FeedbackMessage, "Tipp kör vége!", false, 2f);
                     DOVirtual.DelayedCall(3f, () =>
                     {
-                        gameDisplay.ShowToast(toast_FeedbackMessage, "Kezdődjön a piramis!", 2f);
+                        gameDisplay.ShowToast(toast_FeedbackMessage, "Kezdődjön a piramis!", false, 2f);
                         DOVirtual.DelayedCall(3f, () =>
                         {
                             currentPiramisRow = 1;
@@ -480,19 +488,21 @@ public class GameManager : MonoBehaviour
                     gameDisplay.HidePlayers(activePlayers.Count, playersGroup, 1f);
 
                     FillPiramisWithEmptyCards();
+                    FillPlayersWithEmptyCards();
                     currentPhase = GamePhase.Busz;
                     //FillBuszWithCards();      // TODO!
 
                     DOVirtual.DelayedCall(1f, () =>
                     {
-                        gameDisplay.ShowToast(toast_FeedbackMessage, "Piramisnak vége!", 2f, GamePhase.Tipp);
+                        gameDisplay.ShowToast(toast_FeedbackMessage, "Piramisnak vége!", false, 2f, GamePhase.Tipp);
                         DOVirtual.DelayedCall(3f, () =>
                         {
                             // GameVars-ból a busz nevének lekérése
                             string buszNev = GameVars.Instance.BusName;
-                            gameDisplay.ShowToast(toast_FeedbackMessage, $"Felszállás a {buszNev} járatra!", 2f, GamePhase.Tipp);
+                            gameDisplay.ShowToast(toast_FeedbackMessage, $"Felszállás a {buszNev} járatra!", false, 2f, GamePhase.Tipp);
                             DOVirtual.DelayedCall(3f, () =>
                             {
+                                gameDisplay.ShowPlayers(activePlayers.Count, playersGroup, 1f);
                                 StartBusz();
                             });
                         });
@@ -814,7 +824,7 @@ public class GameManager : MonoBehaviour
 
     private void OnTimerExpired()
     {
-        gameDisplay.ShowToast(toast_FeedbackMessage, "Lejárt az idő! Véletlenszerű tippet kapsz!", 2f, currentPhase);
+        gameDisplay.ShowToast(toast_FeedbackMessage, "Lejárt az idő! Véletlenszerű tippet kapsz!", false, 2f, currentPhase);
         TippValue randomTipp = GetRandomTippForType(currentTippType);
 
         activePlayers[0].SetTipp(randomTipp);
@@ -865,7 +875,7 @@ public class GameManager : MonoBehaviour
         {
             DOVirtual.DelayedCall(0.5f, () =>
             {
-                gameDisplay.ShowToast(toast_FeedbackMessage, "Helyes tipp!", 1.5f, GamePhase.Tipp);
+                gameDisplay.ShowToast(toast_FeedbackMessage, "Helyes tipp!", false, 1.5f, GamePhase.Tipp);
             });
             DOVirtual.DelayedCall(2f, () =>
             {
@@ -878,7 +888,7 @@ public class GameManager : MonoBehaviour
 
             DOVirtual.DelayedCall(0.5f, () =>
             {
-                gameDisplay.ShowToast(toast_FeedbackMessage, "Helytelen tipp!", 1.5f, GamePhase.Tipp);
+                gameDisplay.ShowToast(toast_FeedbackMessage, "Helytelen tipp!", false, 1.5f, GamePhase.Tipp);
             });
             DOVirtual.DelayedCall(2f, () =>
             {
@@ -1062,8 +1072,9 @@ public class GameManager : MonoBehaviour
     #region Pont Osztás Management
     private void ShowPointGiving(bool isPiramis = false)
     {
-        //totalPointsToGive = currentRound;
-        totalPointsToGive = currentPiramisRow;
+        totalPointsToGive = placedCardsNumber * currentPiramisRow; // multiplier = currentPiramisRow
+        Debug.Log($"totalPointsToGive ({totalPointsToGive}) = placedCardsNumber ({placedCardsNumber}) * currentPiramisRow ({currentPiramisRow})");
+
         System.Array.Clear(pointsToGive, 0, pointsToGive.Length);
         
         // Minden játékosnál megjelenítjük a pont osztó UI-t
@@ -1198,7 +1209,7 @@ public class GameManager : MonoBehaviour
         // Folytatás a fázis alapján
         if (currentPhase == GamePhase.Tipp)
         {
-            gameDisplay.ShowToast(toast_FeedbackMessage, "Pontok kiosztva!", 2f, GamePhase.Tipp);
+            gameDisplay.ShowToast(toast_FeedbackMessage, "Pontok kiosztva!", false, 2f, GamePhase.Tipp);
             DOVirtual.DelayedCall(2f, () =>
             {
                 TippContinue(1f);
@@ -1220,7 +1231,7 @@ public class GameManager : MonoBehaviour
 
         if (currentPhase == GamePhase.Tipp)
         {
-            gameDisplay.ShowToast(toast_FeedbackMessage, "Nem osztottál ki időben pontokat!", 2f, GamePhase.Tipp);
+            gameDisplay.ShowToast(toast_FeedbackMessage, "Nem osztottál ki időben pontokat!", false, 2f, GamePhase.Tipp);
 
             DOVirtual.DelayedCall(2f, () =>
             {
@@ -1229,7 +1240,7 @@ public class GameManager : MonoBehaviour
         }
         else if (currentPhase == GamePhase.Piramis)
         {
-            gameDisplay.ShowToast(toast_FeedbackMessage, "Nem osztottál ki időben pontokat!", 2f, GamePhase.Piramis);
+            gameDisplay.ShowToast(toast_FeedbackMessage, "Nem osztottál ki időben pontokat!", false, 2f, GamePhase.Piramis);
             DOVirtual.DelayedCall(2f, () =>
             {
                 NextPiramisPlayer(2f);
@@ -1314,7 +1325,7 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            gameDisplay.ShowToast(toast_FeedbackMessage, "Nem tudsz kártyát letenni!", 2f, GamePhase.Piramis);
+            gameDisplay.ShowToast(toast_FeedbackMessage, "Nem tudsz kártyát letenni!", false, 2f, GamePhase.Piramis);
             DOVirtual.DelayedCall(2f, () =>
             {
                 debugDOmessage += "CheckIfPlayerCanDropCard() = [NO ] => ";
@@ -1326,7 +1337,7 @@ public class GameManager : MonoBehaviour
     private void WaitForPlayerToDropCard()
     {
         debugDOmessage += "WaitForPlayerToDropCard() -> ";
-        gameDisplay.ShowToast(toast_FeedbackMessage, "Játsz ki azonos értékű kártyákat vagy hagyd ki a kört!", 2f, GamePhase.Piramis);
+        gameDisplay.ShowToast(toast_FeedbackMessage, "Játsz ki azonos értékű kártyákat vagy hagyd ki a kört!", true, 2f, GamePhase.Piramis);
 
         placedCardsNumber = 0;
         
@@ -1393,14 +1404,14 @@ public class GameManager : MonoBehaviour
 
         if (!currentPiramisCard.CardFrontRenderer.gameObject.activeSelf)
         {
-            gameDisplay.ShowToast(toast_FeedbackMessage, "Lefordított kártyára nem tehetsz le!", 2f, GamePhase.Piramis);
+            gameDisplay.ShowToast(toast_FeedbackMessage, "Lefordított kártyára nem tehetsz le!", false, 2f, GamePhase.Piramis);
             playerManagers[playerManagerIndex].OnCardReturnedToPlayer(cardSlotIndex);
             return;
         }
 
         if (PiramisRowIndex != currentPiramisRow)
         {
-            gameDisplay.ShowToast(toast_FeedbackMessage, "Rossz sorba tetted le a kártyát!", 2f, GamePhase.Piramis);
+            gameDisplay.ShowToast(toast_FeedbackMessage, "Rossz sorba tetted le a kártyát!", false, 2f, GamePhase.Piramis);
             Debug.Log($"PiramisRowIndex: {PiramisRowIndex}, currentPiramisRow: {currentPiramisRow}");
             playerManagers[playerManagerIndex].OnCardReturnedToPlayer(cardSlotIndex);
             return;
@@ -1408,14 +1419,14 @@ public class GameManager : MonoBehaviour
 
         if (droppedOnThisPiramisCard != currentPiramisCard)
         {
-            gameDisplay.ShowToast(toast_FeedbackMessage, "Csak a jelenlegi piramis kártyára tehetsz le!", 2f, GamePhase.Piramis);
+            gameDisplay.ShowToast(toast_FeedbackMessage, "Csak a jelenlegi piramis kártyára tehetsz le!", false, 2f, GamePhase.Piramis);
             playerManagers[playerManagerIndex].OnCardReturnedToPlayer(cardSlotIndex);
             return;
         }
 
         if (playerCard.GetCardValue() != currentPiramisCard.GetCardData().GetCardValue())
         {
-            gameDisplay.ShowToast(toast_FeedbackMessage, "Hibás kártya! Azonos értékűt tehetsz csak le!", 2f, GamePhase.Piramis);
+            gameDisplay.ShowToast(toast_FeedbackMessage, "Hibás kártya! Azonos értékűt tehetsz csak le!", false, 2f, GamePhase.Piramis);
             playerManagers[playerManagerIndex].OnCardReturnedToPlayer(cardSlotIndex);
             return;
         }
@@ -1454,7 +1465,7 @@ public class GameManager : MonoBehaviour
         gameDisplay.ShowPiramisButtons(pyramidButtonsGroup, 0.5f);
         confirmPyramidCardButton.GetComponent<CustomButtonForeground>().SetInteractiveState(true);
 
-        gameDisplay.ShowToast(toast_FeedbackMessage, $"Kártya letéve! ({placedCardsNumber} db)", 1.5f, GamePhase.Piramis);
+        gameDisplay.ShowToast(toast_FeedbackMessage, $"Kártya letéve! ({placedCardsNumber} db)", false, 1.5f, GamePhase.Piramis);
     }
     
     public void OnSkipPyramidCardButtonClicked()
@@ -1484,9 +1495,6 @@ public class GameManager : MonoBehaviour
         confirmPyramidCardButton.gameObject.SetActive(false);
         gameDisplay.HidePiramisButtons(pyramidButtonsGroup, 0.5f);
         confirmPyramidCardButton.GetComponent<CustomButtonForeground>().SetInteractiveState(false);
-        
-        // Pont osztás indítása
-        totalPointsToGive = placedCardsNumber * currentPiramisRow; // multiplier = currentPiramisRow
 
         gameDisplay.HideCurrentCard(tippCardGroup, 0.5f);
         
@@ -1498,7 +1506,7 @@ public class GameManager : MonoBehaviour
 
     private void OnCardDropTimeout()
     {
-        gameDisplay.ShowToast(toast_FeedbackMessage, "Nem tettél le kártyát időben!", 2f, GamePhase.Piramis);
+        gameDisplay.ShowToast(toast_FeedbackMessage, "Nem tettél le kártyát időben!", false, 2f, GamePhase.Piramis);
         //Debug.Log($"{activePlayers[currentPlayerIndex].GetPlayerName()} nem tett le kártyát (timeout)");
         
         waitingForCardDrop = false;
@@ -1511,8 +1519,11 @@ public class GameManager : MonoBehaviour
         pyramidButtonsGroup.gameObject.SetActive(false);
 
         debugDOmessage += "OnCardDropTimeout() -> ";
-        // Következő játékos
-        NextPiramisPlayer(2f);
+
+        DOVirtual.DelayedCall(2f, () =>
+        {
+            NextPiramisPlayer(2f);
+        });
     }
 
     private void NextPiramisPlayer(float delay = 0f)
@@ -1659,6 +1670,20 @@ public class GameManager : MonoBehaviour
     #endregion
 
     #region DEBUG!
+
+    private void FillPlayersWithEmptyCards()
+    {
+        foreach (var player in activePlayers)
+        {
+            for (int i = 0; i < 5; i++)
+            {
+                foreach (var card in player.GetPlayerCards())
+                {
+                    player.ChangeCardToEmptyCardAtIndex(i);
+                }
+            }
+        }
+    }
 
     private void FillPlayersWithCards()
     {

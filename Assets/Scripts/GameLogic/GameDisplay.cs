@@ -456,7 +456,7 @@ public class GameDisplay : MonoBehaviour
 
     #region UI Display
 
-    public void ShowToast(GameObject toastObject, string message, float duration = 2f, GamePhase gamePhase = default)
+    public void ShowToast(GameObject toastObject, string message, bool isLongMessage, float duration = 2f, GamePhase gamePhase = default)
     {
         if (toastObject == null) return;
 
@@ -469,7 +469,8 @@ public class GameDisplay : MonoBehaviour
                 toastRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 600);
                 break;
             case GamePhase.Piramis:
-                toastRect.anchoredPosition = new Vector2(0, 180);
+                int xPos = isLongMessage ? -150 : 0;
+                toastRect.anchoredPosition = new Vector2(xPos, 180);
                 toastRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 850);
                 break;
             case GamePhase.Busz:
