@@ -2,7 +2,7 @@ using UnityEngine;
 
 public enum CardType { NONE, SZIV, ROMBUSZ, LOHERE, PIKK }
 public enum CardBackType { NONE, RED, BLUE }
-public enum CardValue { ZERO = 0, TWO = 2, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE, TEN, JACK = 11, QUEEN, KING, ACE = 13 }
+public enum CardValue { ZERO = 0, TWO = 2, THREE = 3, FOUR = 4, FIVE = 5, SIX = 6, SEVEN = 7, EIGHT = 8, NINE = 9, TEN = 10, JACK = 11, QUEEN = 12, KING = 13, ACE = 14 }
 
 [System.Serializable]
 public class Card

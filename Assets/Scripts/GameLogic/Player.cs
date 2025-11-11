@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum PlayerExitStatus { PLAYING, COMPLETED, FAILED, GAVE_UP, DISCONNECTED }
+
 [System.Serializable]
 public class Player
 {
@@ -10,6 +12,7 @@ public class Player
     private List<Card> _playerCards;
 
     private TippValue _currentTipp;
+    private PlayerExitStatus _exitStatus;
 
     public Player(int id, string name)
     {
@@ -18,6 +21,7 @@ public class Player
         _playerScore = 0;
         _playerCards = new List<Card>(); // MAX 5 kártya lehet nála!
         _currentTipp = TippValue.NONE;
+        _exitStatus = PlayerExitStatus.PLAYING;
     }
 
     public int GetPlayerID()
@@ -96,6 +100,16 @@ public class Player
     public void SetTipp(TippValue tipp)
     {
         _currentTipp = tipp;
+    }
+
+    public PlayerExitStatus GetExitStatus()
+    {
+        return _exitStatus;
+    }
+
+    public void SetExitStatus(PlayerExitStatus status)
+    {
+        _exitStatus = status;
     }
 
     public void AddCardToPlayer(Card card)

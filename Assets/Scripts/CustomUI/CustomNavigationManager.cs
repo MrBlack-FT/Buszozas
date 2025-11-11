@@ -66,10 +66,12 @@ public class CustomNavigationManager : MonoBehaviour
 
     private void Update()
     {
+        /*
         if (Input.GetKeyDown(KeyCode.D))
         {
             debugger.gameObject.SetActive(!debugger.gameObject.activeSelf);
         }
+        */
 
         // Ellenőrizzük, hogy változott-e az aktív panel
         GameObject newActivePanel = GetActivePanel();

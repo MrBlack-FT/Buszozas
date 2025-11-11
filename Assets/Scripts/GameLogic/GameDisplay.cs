@@ -28,7 +28,14 @@ public class GameDisplay : MonoBehaviour
     #region Start Buttons 
     public void ShowStartButtons(GameObject startButtonsGroup, float duration = 0.5f, System.Action onComplete = null)
     {
+        Button[] buttons = startButtonsGroup.GetComponentsInChildren<Button>(true);
+
         startButtonsGroup.SetActive(true);
+
+        foreach (var button in buttons)
+        {
+            button.GetComponent<CustomButtonForeground>().SetInteractiveState(false);
+        }
 
         CanvasGroup canvasGroup = startButtonsGroup.GetComponent<CanvasGroup>();
         if (canvasGroup == null)
@@ -38,7 +45,13 @@ public class GameDisplay : MonoBehaviour
         }
 
         canvasGroup.alpha = 0f;
-        canvasGroup.DOFade(1f, duration);
+        canvasGroup.DOFade(1f, duration).OnComplete(() =>
+        {
+            foreach (var button in buttons)
+            {
+                button.GetComponent<CustomButtonForeground>().SetInteractiveState(true);
+            }
+        });
     }
 
     public void HideStartButtons(GameObject startButtonsGroup, float duration = 0.5f, System.Action onComplete = null)
@@ -55,6 +68,45 @@ public class GameDisplay : MonoBehaviour
         canvasGroup.DOFade(0f, duration).OnComplete(() =>
         {
             startButtonsGroup.SetActive(false);
+            onComplete?.Invoke();
+        });
+    }
+
+    #endregion
+
+    #region End Buttons Display
+
+    public void ShowEndButtons(GameObject endButtonsGroup, float duration = 0.5f, System.Action onComplete = null)
+    {
+        endButtonsGroup.SetActive(true);
+        CanvasGroup canvasGroup = endButtonsGroup.GetComponent<CanvasGroup>();
+        if (canvasGroup == null)
+        {
+            Debug.LogError("End Buttons Group does not have a CanvasGroup component. Adding one...");
+            canvasGroup = endButtonsGroup.AddComponent<CanvasGroup>();
+        }
+
+        canvasGroup.alpha = 0f;
+        canvasGroup.DOFade(1f, duration).OnComplete(() =>
+        {
+            onComplete?.Invoke();
+        });
+    }
+
+    public void HideEndButtons(GameObject endButtonsGroup, float duration = 0.5f, System.Action onComplete = null)
+    {
+        CanvasGroup canvasGroup = endButtonsGroup.GetComponent<CanvasGroup>();
+        if (canvasGroup == null)
+        {
+            Debug.LogError("End Buttons Group does not have a CanvasGroup component. Adding one...");
+            endButtonsGroup.SetActive(false);
+            onComplete?.Invoke();
+            return;
+        }
+
+        canvasGroup.DOFade(0f, duration).OnComplete(() =>
+        {
+            endButtonsGroup.SetActive(false);
             onComplete?.Invoke();
         });
     }
@@ -314,9 +366,16 @@ public class GameDisplay : MonoBehaviour
         });
     }
 
+    public void HighlightBuszCard(CardManager[] buszCards, int cardIndex, bool highlight)
+    {
+        if (cardIndex < 0 || cardIndex >= buszCards.Length) return;
+
+        buszCards[cardIndex].GetComponent<Image>().color = highlight ? new Color(0.5f, 0f, 1f, 1f) : new Color(0f, 0f, 0f, 0f);
+    }
+
     #endregion
 
-    #region Piramis Display
+        #region Piramis Display
 
     public void ShowPiramis(GameObject piramisGroup, float duration = 1f, System.Action onComplete = null)
     {
@@ -382,39 +441,108 @@ public class GameDisplay : MonoBehaviour
 
     #endregion
 
-    #region Piramis Buttons Display
+    #region Busz Display
 
-    public void ShowPiramisButtons(GameObject buttonGroup, float duration = 0.5f)
+    public void ShowBusz(GameObject buszGroup, CardManager[] buszCards, float duration = 1f, System.Action onComplete = null)
     {
-        buttonGroup.SetActive(true);
-
-        CanvasGroup canvasGroup = buttonGroup.GetComponent<CanvasGroup>();
-        if (canvasGroup == null)
+        // ELŐSZÖR: Minden kártya hátlapját aktívvá tesszük (reset a kezdőállapotba)
+        foreach (var card in buszCards)
         {
-            Debug.LogError("Piramis Button Group does not have a CanvasGroup component. Adding one...");
-            canvasGroup = buttonGroup.AddComponent<CanvasGroup>();
+            card.ShowCardBack();
         }
 
-        canvasGroup.alpha = 0f;
-        canvasGroup.DOFade(1f, duration).SetEase(Ease.OutCubic);
+        buszGroup.SetActive(true);
+
+        /*
+        // CanvasGroup fade (ha van UI Image)
+        CanvasGroup canvasGroup = buszGroup.GetComponent<CanvasGroup>();
+        if (canvasGroup != null)
+        {
+            canvasGroup.alpha = 0f;
+            canvasGroup.DOFade(1f, duration).SetEase(Ease.OutCubic);
+        }
+        */
+
+        // SpriteRenderer-ek fade
+        SpriteRenderer[] sprites = buszGroup.GetComponentsInChildren<SpriteRenderer>(true);
+        foreach (var sprite in sprites)
+        {
+            Color color = sprite.color;
+            color.a = 0f;
+            sprite.color = color;
+            sprite.DOFade(1f, duration).SetEase(Ease.OutCubic);
+        }
+
+        
+        // Kártyák felfordítása
+        int delayIndex = 0;
+        for (int I = 0; I < buszCards.Length; I++)
+        {
+            if (I != buszCards.Length - 2) // az utolsó előtti kimarad
+            {
+                int index = I;
+                float delay = delayIndex * 0.25f;
+
+                DOVirtual.DelayedCall(delay, () => buszCards[index].AnimateCardFlip(0.5f));
+
+                delayIndex++; // csak akkor növeljük, ha tényleg animáltunk
+            }
+        }
+        
+        DOVirtual.DelayedCall(duration, () => onComplete?.Invoke());
     }
 
-    public void HidePiramisButtons(GameObject buttonGroup, float duration = 0.5f, System.Action onComplete = null)
+    public void HideBusz(GameObject buszGroup, CardManager[] buszCards, float duration = 1f, System.Action onComplete = null)
     {
-        CanvasGroup canvasGroup = buttonGroup.GetComponent<CanvasGroup>();
-        if (canvasGroup == null)
+        /*
+        // CanvasGroup fade
+        CanvasGroup canvasGroup = buszGroup.GetComponent<CanvasGroup>();
+        if (canvasGroup != null)
         {
-            Debug.LogError("Piramis Button Group does not have a CanvasGroup component. Adding one...");
-            buttonGroup.SetActive(false);
+            canvasGroup.DOFade(0f, duration).SetEase(Ease.InCubic);
+        }
+        */
+
+        /*
+        //Kártyák lefordítása
+        int delayIndex = 0;
+        for (int I = 0; I < buszCards.Length; I++)
+        {
+            if (I != buszCards.Length - 2)
+            {
+                int index = I;
+                float delay = delayIndex * 0.25f;
+
+                DOVirtual.DelayedCall(delay, () => buszCards[index].AnimateCardFlip(0.5f));
+
+                delayIndex++;
+            }
+        }
+        */
+
+        // SpriteRenderer-ek fade
+        SpriteRenderer[] sprites = buszGroup.GetComponentsInChildren<SpriteRenderer>();
+        int fadeCount = sprites.Length;
+
+        if (fadeCount == 0)
+        {
+            buszGroup.SetActive(false);
             onComplete?.Invoke();
             return;
         }
 
-        canvasGroup.DOFade(0f, duration).SetEase(Ease.InCubic).OnComplete(() =>
+        foreach (var sprite in sprites)
         {
-            buttonGroup.SetActive(false);
-            onComplete?.Invoke();
-        });
+            sprite.DOFade(0f, duration)/*.SetEase(Ease.InCubic)*/.OnComplete(() =>
+            {
+                fadeCount--;
+                if (fadeCount <= 0)
+                {
+                    buszGroup.SetActive(false);
+                    onComplete?.Invoke();
+                }
+            });
+        }
     }
 
     #endregion
@@ -454,6 +582,80 @@ public class GameDisplay : MonoBehaviour
 
     #endregion
 
+    #region Piramis Buttons Display
+
+    public void ShowPiramisButtons(GameObject buttonGroup, float duration = 0.5f)
+    {
+        buttonGroup.SetActive(true);
+
+        CanvasGroup canvasGroup = buttonGroup.GetComponent<CanvasGroup>();
+        if (canvasGroup == null)
+        {
+            Debug.LogError("Piramis Button Group does not have a CanvasGroup component. Adding one...");
+            canvasGroup = buttonGroup.AddComponent<CanvasGroup>();
+        }
+
+        canvasGroup.alpha = 0f;
+        canvasGroup.DOFade(1f, duration).SetEase(Ease.OutCubic);
+    }
+
+    public void HidePiramisButtons(GameObject buttonGroup, float duration = 0.5f, System.Action onComplete = null)
+    {
+        CanvasGroup canvasGroup = buttonGroup.GetComponent<CanvasGroup>();
+        if (canvasGroup == null)
+        {
+            Debug.LogError("Piramis Button Group does not have a CanvasGroup component. Adding one...");
+            buttonGroup.SetActive(false);
+            onComplete?.Invoke();
+            return;
+        }
+
+        canvasGroup.DOFade(0f, duration).SetEase(Ease.InCubic).OnComplete(() =>
+        {
+            buttonGroup.SetActive(false);
+            onComplete?.Invoke();
+        });
+    }
+
+    #endregion
+
+    #region Busz Buttons Display
+
+    public void ShowBuszButtons(GameObject buttonGroup, float duration = 0.5f)
+    {
+        buttonGroup.SetActive(true);
+
+        CanvasGroup canvasGroup = buttonGroup.GetComponent<CanvasGroup>();
+        if (canvasGroup == null)
+        {
+            Debug.LogError("Busz Button Group does not have a CanvasGroup component. Adding one...");
+            canvasGroup = buttonGroup.AddComponent<CanvasGroup>();
+        }
+
+        canvasGroup.alpha = 0f;
+        canvasGroup.DOFade(1f, duration).SetEase(Ease.OutCubic);
+    }
+
+    public void HideBuszButtons(GameObject buttonGroup, float duration = 0.5f, System.Action onComplete = null)
+    {
+        CanvasGroup canvasGroup = buttonGroup.GetComponent<CanvasGroup>();
+        if (canvasGroup == null)
+        {
+            Debug.LogError("Busz Button Group does not have a CanvasGroup component. Adding one...");
+            buttonGroup.SetActive(false);
+            onComplete?.Invoke();
+            return;
+        }
+
+        canvasGroup.DOFade(0f, duration).SetEase(Ease.InCubic).OnComplete(() =>
+        {
+            buttonGroup.SetActive(false);
+            onComplete?.Invoke();
+        });
+    }
+
+    #endregion
+
     #region UI Display
 
     public void ShowToast(GameObject toastObject, string message, bool isLongMessage, float duration = 2f, GamePhase gamePhase = default)
@@ -474,12 +676,16 @@ public class GameDisplay : MonoBehaviour
                 toastRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 850);
                 break;
             case GamePhase.Busz:
-                toastRect.anchoredPosition = new Vector2(0, 0);
+                toastRect.anchoredPosition = new Vector2(0, 310);
                 toastRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 600);
                 break;
             case GamePhase.JatekVege:
-                toastRect.anchoredPosition = new Vector2(0, 0);
-                toastRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 600);
+                toastRect.anchorMin = new Vector2(0.5f, 0.5f);
+                toastRect.anchorMax = new Vector2(0.5f, 0.5f);
+                toastRect.pivot = new Vector2(0.5f, 0.5f);
+                toastRect.anchoredPosition =  new Vector2(0, 50);
+                toastRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 800);
+                toastRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 800);
                 break;
             default:
                 Debug.Log("DEFAULT CASE IN SHOWTOAST!");
@@ -506,6 +712,9 @@ public class GameDisplay : MonoBehaviour
         canvasGroup.alpha = 0f;
         canvasGroup.DOFade(1f, 0.25f);
 
+        if (duration < 0f)
+            return; // Ha negatív az idő, akkor nem Fade out-olunk és nem deaktiváljuk.
+        
         // Fade out után duration idővel
         DOVirtual.DelayedCall(duration, () =>
         {

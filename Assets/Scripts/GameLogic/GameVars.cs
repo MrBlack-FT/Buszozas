@@ -71,10 +71,12 @@ public class GameVars : MonoBehaviour
         }
         */
 
+        /*
         if (Input.GetKeyDown(KeyCode.P))
         {
             PrintCurrentGameVars();
         }
+        */
     }
 
     #endregion

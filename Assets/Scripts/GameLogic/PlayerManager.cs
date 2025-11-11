@@ -128,15 +128,15 @@ public class PlayerManager : MonoBehaviour
             return;
         }
 
-        Debug.Log($"ChangeCardToEmptyCard called on slotIndex: \"{slotIndex}\"\n" +
-                  $"Card is: {cardSlots[slotIndex].GetCardData().GetCardBackType()} | {cardSlots[slotIndex].GetCardData().GetCardType()} | {cardSlots[slotIndex].GetCardData().GetCardValue()}");
+        //Debug.Log($"ChangeCardToEmptyCard called on slotIndex: \"{slotIndex}\"\n" +
+        //          $"Card is: {cardSlots[slotIndex].GetCardData().GetCardBackType()} | {cardSlots[slotIndex].GetCardData().GetCardType()} | {cardSlots[slotIndex].GetCardData().GetCardValue()}");
         cardSlots[slotIndex].SetEmptyCard();
-        Debug.Log($"After SetEmptyCard() slotIndex: \"{slotIndex}\"\n" +
-                  $"Card is: {cardSlots[slotIndex].GetCardData().GetCardBackType()} | {cardSlots[slotIndex].GetCardData().GetCardType()} | {cardSlots[slotIndex].GetCardData().GetCardValue()}");
+        //Debug.Log($"After SetEmptyCard() slotIndex: \"{slotIndex}\"\n" +
+        //          $"Card is: {cardSlots[slotIndex].GetCardData().GetCardBackType()} | {cardSlots[slotIndex].GetCardData().GetCardType()} | {cardSlots[slotIndex].GetCardData().GetCardValue()}");
         if (resetTransform)
         {
             cardSlots[slotIndex].ResetCardOriginalTransform();
-            Debug.Log($"Card Transform after Reset: {cardSlots[slotIndex].transform.position}");
+            //Debug.Log($"Card Transform after Reset: {cardSlots[slotIndex].transform.position}");
         }
     }
 
@@ -144,17 +144,36 @@ public class PlayerManager : MonoBehaviour
 
     public int GetScore()
     {
+        if (player == null)
+        {
+            return 0;
+        }
         return player.GetPlayerScore();
     }
 
     public string GetPlayerName()
     {
+        if (player == null)
+        {
+            return "";
+        }
         return player.GetPlayerName();
     }
+    
     public int GetPlayerId()
     {
         return playerId;
     }
+    
+    public PlayerExitStatus GetExitStatus()
+    {
+        if (player == null)
+        {
+            return PlayerExitStatus.PLAYING;
+        }
+        return player.GetExitStatus();
+    }
+    
     private void UpdateUI()
     {
         if (nameText != null) nameText.text = player.GetPlayerName();
@@ -213,6 +232,16 @@ public class PlayerManager : MonoBehaviour
         pointGiveGroup.SetActive(false);
         pointsText.gameObject.SetActive(true);
         cardsGroup.SetActive(true);
+    }
+
+    public void ShowCardsGroup()
+    {
+        cardsGroup.SetActive(true);
+    }
+
+    public void HideCardsGroup()
+    {
+        cardsGroup.SetActive(false);
     }
 
     public void SetPointsToGiveText(int points)
@@ -288,7 +317,7 @@ public class PlayerManager : MonoBehaviour
             return;
         }
 
-        Debug.Log($"RESETTING Card Slot at  {cardSlotIndex} [index] Original Transform");
+        //Debug.Log($"RESETTING Card Slot at  {cardSlotIndex} [index] Original Transform");
         cardSlots[cardSlotIndex].ResetCardOriginalTransform();
     }
 

@@ -14,12 +14,14 @@ public class BuildNumber : MonoBehaviour
     {
         string buildVersion = PlayerPrefs.GetString("buildNumber", CalculateVersionNumber());
 
+        string buildType = "PUBLIC ALPHA - ";
+
         #if UNITY_EDITOR
-        buildVersion = $"(Editor - build {buildVersion})";
+        buildVersion = $"({buildType}Editor - build {buildVersion})";
         #elif UNITY_ANDROID
-        buildVersion = $"(Android - build {buildVersion})";
+        buildVersion = $"({buildType}Android - build {buildVersion})";
         #else
-        buildVersion = $"(build {buildVersion})";
+        buildVersion = $"({buildType}build {buildVersion})";
         #endif
 
         gameObject.GetComponent<TextMeshProUGUI>().text = buildVersion;

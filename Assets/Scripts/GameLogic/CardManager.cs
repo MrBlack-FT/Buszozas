@@ -234,8 +234,9 @@ public class CardManager : MonoBehaviour
         string value = card.GetCardValue() switch
         {
             CardValue.ACE => "A",
-            CardValue.JACK => "J",
+            CardValue.KING => "K",
             CardValue.QUEEN => "Q",
+            CardValue.JACK => "J",
             CardValue.TEN => "10",
             CardValue.NINE => "09",
             CardValue.EIGHT => "08",
@@ -368,6 +369,7 @@ public class CardManager : MonoBehaviour
         // Raycast az egér pozíciójából
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         RaycastHit2D[] hits = Physics2D.RaycastAll(ray.origin, ray.direction);
+        /*
         string debugText = "";
         foreach (var hit in hits)
         {
@@ -375,6 +377,7 @@ public class CardManager : MonoBehaviour
         }
         Debug.Log(debugText);
         debugger.CustomDebugLog($"Checking drop on piramis card for \"{gameObject.name}\". Raycast hits:\n{debugText}");
+        */
 
         foreach (var hit in hits)
         {
@@ -385,7 +388,7 @@ public class CardManager : MonoBehaviour
                 Transform parent = hit.collider.transform.parent;
                 if (parent != null && parent.name.StartsWith("Row_"))
                 {
-                    Debug.Log($"CardManager -> CheckDropOnPiramisCard\t✅ Dropped on piramis card: \"{hit.collider.gameObject.name}\"");
+                    //Debug.Log($"CardManager -> CheckDropOnPiramisCard\t✅ Dropped on piramis card: \"{hit.collider.gameObject.name}\"");
 
                     // PlayerManager értesítése
                     if (parentPlayerManager != null && cardSlotIndex >= 0)
@@ -399,7 +402,7 @@ public class CardManager : MonoBehaviour
             }
         }
 
-        Debug.Log("CardManager -> CheckDropOnPiramisCard\t❌ No piramis card detected on drop.");
+        //Debug.Log("CardManager -> CheckDropOnPiramisCard\t❌ No piramis card detected on drop.");
         return false;
     }
 

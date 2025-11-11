@@ -38,6 +38,10 @@ public class HandleSettings : MonoBehaviour
     #region Awake és Start
     void Awake()
     {
+        #if UNITY_ANDROID
+        Application.targetFrameRate = 120;
+		#endif
+
         if (resolutionDropdown == null || fullscreenToggle == null || vsyncToggle == null || volumeSlider == null || applyButton == null)
         {
             Debug.LogWarning("HandleSettings: One or more UI components are not assigned in the inspector.");
@@ -50,11 +54,11 @@ public class HandleSettings : MonoBehaviour
             vsyncTitle.gameObject.SetActive(false);
             vsyncToggle.gameObject.SetActive(false);
 
-            fullScreenTitle.rectTransform.anchoredPosition = new Vector2(fullScreenTitle.rectTransform.anchoredPosition.x, 150);
-            fullscreenToggle.GetComponent<RectTransform>().anchoredPosition = new Vector2(fullscreenToggle.GetComponent<RectTransform>().anchoredPosition.x, 150);
+            fullScreenTitle.rectTransform.anchoredPosition = new Vector2(fullScreenTitle.rectTransform.anchoredPosition.x, 200);
+            fullscreenToggle.GetComponent<RectTransform>().anchoredPosition = new Vector2(fullscreenToggle.GetComponent<RectTransform>().anchoredPosition.x, 200);
 
-            volumeTextTitle.rectTransform.anchoredPosition = new Vector2(volumeTextTitle.rectTransform.anchoredPosition.x, 0);
-            volumeSlider.GetComponent<RectTransform>().anchoredPosition = new Vector2(volumeSlider.GetComponent<RectTransform>().anchoredPosition.x, 0);
+            volumeTextTitle.rectTransform.anchoredPosition = new Vector2(volumeTextTitle.rectTransform.anchoredPosition.x, -50);
+            volumeSlider.GetComponent<RectTransform>().anchoredPosition = new Vector2(volumeSlider.GetComponent<RectTransform>().anchoredPosition.x, -50);
             // A volumeText-et nem kell átrendezni, mert az a volumeSlider gyereke, így azzal együtt mozog.            
         #endif
     }

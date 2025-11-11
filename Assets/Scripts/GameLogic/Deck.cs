@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine.Rendering.Universal;
 
 //Egy pakli 104 kártyát tartalmaz. [2 pakli egyben]
 [System.Serializable]
@@ -27,7 +28,7 @@ public class Deck
             {
                 if (type == CardType.NONE) continue;
 
-                for (int value = 2; value <= 13; value++)
+                for (int value = 2; value <= 14; value++)
                 {
                     cards.Add(new Card(type, backType, (CardValue)value));
                 }
@@ -68,6 +69,26 @@ public class Deck
         return drawnCard;
     }
 
+    public Card DrawSpecificCard(Card specificCard)
+    {
+        foreach (var card in cards)
+        {
+            if
+            (
+                card.GetCardBackType() == specificCard.GetCardBackType() &&
+                card.GetCardType() == specificCard.GetCardType() &&
+                card.GetCardValue() == specificCard.GetCardValue()
+            )
+            {
+                cards.Remove(card);
+                usedCards.Add(card);
+                return card;
+            }
+        }
+        Debug.LogWarning("Specific card not found in the deck!");
+        return new Card(CardType.NONE, CardBackType.NONE, CardValue.ZERO);
+    }
+
     public void ResetDeck()
     {
         cards.AddRange(usedCards);
@@ -99,11 +120,17 @@ public class Deck
         int totalCards = cards.Count + usedCards.Count;
         if (totalCards != 104)
         {
-            debugLogstring += $"\tPakli hiba! Nincs 104 kártyából csak {totalCards} van.\n";
+            debugLogstring += $"\t❌Pakli hiba! Nincs 104 kártyából csak {totalCards} van.\n";
+            string cardStr = "";
+            foreach (var card in cards)
+            {
+                cardStr += card.GetCardType() + "\t " + card.GetCardValue() + "\t " + card.GetCardBackType() + "\n";
+            }
+            Debug.Log(cardStr);
         }
         else
         {
-            debugLogstring += $"\t104 kártya van a pakliban. Megfelelő.\n";
+            debugLogstring += $"\t✅104 kártya van a pakliban. Megfelelő.\n";
         }
 
         debugLogstring += $"\tDuplikáció ellenőrzése:\n";
@@ -114,14 +141,14 @@ public class Deck
             string cardIdentifier = $"{card.GetCardBackType()}-{card.GetCardType()}-{card.GetCardValue()}";
             if (cardSet.Contains(cardIdentifier))
             {
-                debugLogstring += $"\tPakli hiba! Duplikált kártya található a pakliban: {cardIdentifier}\n";
+                debugLogstring += $"\t❌Pakli hiba! Duplikált kártya található a pakliban: {cardIdentifier}\n";
             }
             else
             {
                 cardSet.Add(cardIdentifier);
             }
         }
-        debugLogstring += $"\tNincs duplikált kártya a pakliban. Megfelelő.\n";
+        debugLogstring += $"\t✅Nincs duplikált kártya a pakliban. Megfelelő.\n";
 
 
         // Duplikáció ellenőrzése a használt kártyák között
@@ -130,14 +157,14 @@ public class Deck
             string cardIdentifier = $"{card.GetCardBackType()}-{card.GetCardType()}-{card.GetCardValue()}";
             if (cardSet.Contains(cardIdentifier))
             {
-                debugLogstring += $"\tPakli hiba! Duplikált kártya található a használt kártyák között: {cardIdentifier}\n";
+                debugLogstring += $"\t❌Pakli hiba! Duplikált kártya található a használt kártyák között: {cardIdentifier}\n";
             }
             else
             {
                 cardSet.Add(cardIdentifier);
             }
         }
-        debugLogstring += $"\tNincs duplikált kártya a használt kártyák között. Megfelelő.\n";
+        debugLogstring += $"\t✅Nincs duplikált kártya a használt kártyák között. Megfelelő.\n";
 
         debugLogstring += $"\tHiányzó kártyák ellenőrzése:\n";
         // Hiányzó kártyák ellenőrzése (csak PIROS és KÉK)
@@ -153,24 +180,24 @@ public class Deck
                     string cardIdentifier = $"{backType}-{type}-{(CardValue)value}";
                     if (!cardSet.Contains(cardIdentifier))
                     {
-                        debugLogstring += $"\tPakli hiba! Hiányzó kártya: {cardIdentifier}\n";
+                        debugLogstring += $"\t❌Pakli hiba! Hiányzó kártya: {cardIdentifier}\n";
                     }
                 }
             }
         }
-        debugLogstring += $"\tNincsenek hiányzó kártyák a pakliban és a használt kártyák között. Megfelelő.\n";
+        debugLogstring += $"\t✅Nincsenek hiányzó kártyák a pakliban és a használt kártyák között. Megfelelő.\n";
 
         // Kártyák típusának ellenőrzése [NONE típusú kártya nem lehet a pakliban]
         debugLogstring += $"\tKártya típus ellenőrzése:\n";
         foreach (var card in cards)
         {
-            if (card.GetCardType() == CardType.NONE)
+            if (card.GetCardType() == CardType.NONE || card.GetCardBackType() == CardBackType.NONE || card.GetCardValue() == CardValue.ZERO)
             {
-                debugLogstring += $"\tPakli hiba! NONE típusú kártya található a pakliban!\n";
+                debugLogstring += $"\t❌Pakli hiba! NONE típusú kártya található a pakliban!\n";
             }
         }
 
-        debugLogstring += $"\tNincsen NONE típusú kártya a pakliban. Megfelelő.\n";
+        debugLogstring += $"\t✅Nincsen NONE típusú kártya a pakliban. Megfelelő.\n";
         debugLogstring += "Hibakeresés vége!\n";
         Debug.Log(debugLogstring);
     }
