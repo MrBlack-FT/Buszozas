@@ -43,8 +43,12 @@ public class UIActionTriggers : MonoBehaviour
     [Header("MELLÉK PANELEK")]
     [Space(10)]
     [Header("Multiplayer Lobby")]
+    public List<UIActionConfig> OpenMultiplayerCreateActions;
+    public List<UIActionConfig> CloseMultiplayerCreateActions;
     public List<UIActionConfig> OpenMultiplayerLobbyActions;
     public List<UIActionConfig> CloseMultiplayerLobbyActions;
+    public List<UIActionConfig> OpenMultiplayerRoomActions;
+    public List<UIActionConfig> CloseMultiplayerRoomActions;
 
     [Space(10)]
 
@@ -86,6 +90,13 @@ public class UIActionTriggers : MonoBehaviour
 
     public void AddOpenMultiplayer() => TheSequenceList.AddRange(OpenMultiplayerActions);
     public void AddCloseMultiplayer() => TheSequenceList.AddRange(CloseMultiplayerActions);
+
+    public void AddOpenMultiplayerCreate() => TheSequenceList.AddRange(OpenMultiplayerCreateActions);
+    public void AddCloseMultiplayerCreate() => TheSequenceList.AddRange(CloseMultiplayerCreateActions);
+    public void AddOpenMultiplayerLobby() => TheSequenceList.AddRange(OpenMultiplayerLobbyActions);
+    public void AddCloseMultiplayerLobby() => TheSequenceList.AddRange(CloseMultiplayerLobbyActions);
+    public void AddOpenMultiplayerRoom() => TheSequenceList.AddRange(OpenMultiplayerRoomActions);
+    public void AddCloseMultiplayerRoom() => TheSequenceList.AddRange(CloseMultiplayerRoomActions);
 
     public void AddOpenMainMenu() => TheSequenceList.AddRange(OpenMainMenuActions);
     public void AddCloseMainMenu() => TheSequenceList.AddRange(CloseMainMenuActions);
