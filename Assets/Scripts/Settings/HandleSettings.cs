@@ -40,6 +40,7 @@ public class HandleSettings : MonoBehaviour
     {
         #if UNITY_ANDROID
         Application.targetFrameRate = 120;
+        Screen.orientation = ScreenOrientation.LandscapeLeft;
 		#endif
 
         if (resolutionDropdown == null || fullscreenToggle == null || vsyncToggle == null || volumeSlider == null || applyButton == null)

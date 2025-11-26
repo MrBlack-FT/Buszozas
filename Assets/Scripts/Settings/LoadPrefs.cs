@@ -19,11 +19,18 @@ public class LoadPrefs : MonoBehaviour
 
     [SerializeField] private Toggle vsyncToggle = null;
 
+    [SerializeField] private TMP_Text playerNameText_MJoin = null;
+    [SerializeField] private TMP_Text playerNameText_MCreate = null;
+
     private void Start()
     {
-        if(volumeText == null || volumeSlider == null || resolutionDropdown == null || fullscreenToggle == null || vsyncToggle == null)
+        if ( volumeText == null || volumeSlider == null || resolutionDropdown == null || fullscreenToggle == null || vsyncToggle == null )
         {
             Debug.LogWarning("LoadPrefs: One or more UI components are not assigned in the inspector.");
+            if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name != "Game" && (playerNameText_MJoin == null || playerNameText_MCreate == null))
+            {
+                Debug.LogWarning("LoadPrefs: playerNameText_MJoin or playerNameText_MCreate is not assigned in the inspector.");
+            }
             return;
         }
         
@@ -101,5 +108,19 @@ public class LoadPrefs : MonoBehaviour
         }
 
         resolutionDropdown.RefreshShownValue();
+
+        if (playerNameText_MJoin == null || playerNameText_MCreate == null) return;
+        
+        if (PlayerPrefs.HasKey("playerName"))
+        {
+            string localPlayerName = PlayerPrefs.GetString("playerName");
+            playerNameText_MJoin.text = localPlayerName;
+            playerNameText_MCreate.text = localPlayerName;
+        }
+        else
+        {
+            playerNameText_MJoin.text = "Névtelen Utas";
+            playerNameText_MCreate.text = "Névtelen Utas";
+        }
     }
 }

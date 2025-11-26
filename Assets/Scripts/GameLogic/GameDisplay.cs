@@ -18,8 +18,7 @@ public class GameDisplay : MonoBehaviour
     {
         if (debugger != null && debugger.gameObject.activeSelf)
         {
-            string playerTransitionStatus = debugger.ColoredString(isPlayersTransitioning ? "TRUE" : "FALSE", isPlayersTransitioning ? Color.green : Color.red);
-            debugger.UpdatePersistentLog("isPlayersTransitioning", playerTransitionStatus);
+            //debugger.UpdatePersistentLog("isPlayersTransitioning", debugger.ColoredString(isPlayersTransitioning ? "TRUE" : "FALSE", isPlayersTransitioning ? Color.green : Color.red));
         }
     }
 

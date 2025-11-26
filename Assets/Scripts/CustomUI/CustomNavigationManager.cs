@@ -66,12 +66,12 @@ public class CustomNavigationManager : MonoBehaviour
 
     private void Update()
     {
-        /*
+        
         if (Input.GetKeyDown(KeyCode.D))
         {
             debugger.gameObject.SetActive(!debugger.gameObject.activeSelf);
         }
-        */
+        
 
         // Ellenőrizzük, hogy változott-e az aktív panel
         GameObject newActivePanel = GetActivePanel();
@@ -171,6 +171,7 @@ public class CustomNavigationManager : MonoBehaviour
                 }
             }
 
+            /*
             // Persistent státusz frissítése a Debugger-ben
             if (debugger != null && debugger.gameObject.activeSelf)
             {
@@ -179,9 +180,10 @@ public class CustomNavigationManager : MonoBehaviour
                 string lastStatus = debugger.ColoredString(LastSelected != null ? LastSelected.name : "NULL", 
                                                   LastSelected != null ? Color.green : Color.red);
 
-                debugger.UpdatePersistentLog("Current Selected", currentStatus);
-                debugger.UpdatePersistentLog("Last Selected", lastStatus);
+                //debugger.UpdatePersistentLog("Current Selected", currentStatus);
+                //debugger.UpdatePersistentLog("Last Selected", lastStatus);
             }
+            */
             LastSelected = CurrentSelected;
         }
     }

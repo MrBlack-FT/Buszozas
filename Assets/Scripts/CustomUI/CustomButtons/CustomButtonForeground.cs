@@ -57,6 +57,11 @@ public class CustomButtonForeground : MonoBehaviour
 
     public void ChangeInteractiveState()
     {
+        if (ForegroundImage == null)
+        {
+            Debug.LogWarning("ForegroundImage is not assigned in " + gameObject.name);
+            return;
+        }
         if (IsInteractive)
         {
             ForegroundImage.color = new Color(96f / 255f, 96f / 255f, 96f / 255f, 1f);

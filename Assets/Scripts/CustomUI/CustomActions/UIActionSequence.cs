@@ -32,8 +32,7 @@ public class UIActionSequence : MonoBehaviour
     {
         if (debugger != null && debugger.gameObject.activeSelf)
         {
-            string isMenuTransitioningStatus = debugger.ColoredString(uiVars.IsMenuTransitioning ? "TRUE" : "FALSE", uiVars.IsMenuTransitioning ? Color.green : Color.red);
-            debugger.UpdatePersistentLog("IsMenuTransitioning", isMenuTransitioningStatus);
+            //debugger.UpdatePersistentLog("IsMenuTransitioning", debugger.ColoredString(uiVars.IsMenuTransitioning ? "TRUE" : "FALSE", uiVars.IsMenuTransitioning ? Color.green : Color.red));
         }
     }
     

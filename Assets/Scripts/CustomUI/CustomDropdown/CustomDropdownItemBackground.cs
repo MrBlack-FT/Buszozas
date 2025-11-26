@@ -116,8 +116,7 @@ public class CustomDropdownItemBackground : MonoBehaviour
     {
         if (debugger != null && debugger.gameObject.activeSelf)
         {
-            string PointerDownStatus = debugger.ColoredString(uiVars.IsPointerDown ? "TRUE" : "FALSE", uiVars.IsPointerDown ? Color.green : Color.red);
-            debugger.UpdatePersistentLog("isPointerDown", PointerDownStatus);
+            debugger.UpdatePersistentLog("isPointerDown", debugger.ColoredString(uiVars.IsPointerDown ? "TRUE" : "FALSE", uiVars.IsPointerDown ? Color.green : Color.red));
         }
     }
 

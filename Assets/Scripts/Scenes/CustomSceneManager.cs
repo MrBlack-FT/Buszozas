@@ -4,6 +4,17 @@ using DG.Tweening;
 
 public class CustomSceneManager : MonoBehaviour
 {
+    void OnApplicationQuit()
+    {
+        DOTween.KillAll();
+
+        if (Mirror.NetworkManager.singleton != null)
+        {
+            Mirror.NetworkManager.singleton.StopAllCoroutines();
+            Mirror.NetworkManager.singleton.StopHost();
+            Mirror.NetworkManager.singleton.StopClient();
+        }
+    }
     void Awake()
     {
         SceneManager.sceneLoaded += OnSceneLoaded;
@@ -36,22 +47,25 @@ public class CustomSceneManager : MonoBehaviour
 
     public void LoadScene(string sceneName)
     {
-        DOTween.KillAll();
+        DOVirtual.DelayedCall(0.5f, () =>
+        {
+            DOTween.KillAll();
 
-        if (sceneName == "MainMenu" && GameVars.Instance != null)
-        {
-            GameVars.Instance.ResetToDefaults();
-        }
+            if (sceneName == "MainMenu" && GameVars.Instance != null)
+            {
+                GameVars.Instance.ResetToDefaults();
+            }
 
-        if (IsSceneInBuildSettings(sceneName))
-        {
-            SceneManager.LoadScene(sceneName);
-        }
-        else
-        {
-            Debug.LogError($"Scene \"{sceneName}\" not found in build settings! Returning to Main Menu!");
-            SceneManager.LoadScene("MainMenu");
-        }
+            if (IsSceneInBuildSettings(sceneName))
+            {
+                SceneManager.LoadScene(sceneName);
+            }
+            else
+            {
+                Debug.LogError($"Scene \"{sceneName}\" not found in build settings! Returning to Main Menu!");
+                SceneManager.LoadScene("MainMenu");
+            }
+        });
     }
 
     public void LoadScene(int sceneIndex)
@@ -116,6 +130,14 @@ public class CustomSceneManager : MonoBehaviour
     public void ExitGame()
     {
         DOTween.KillAll();
+
+        if (Mirror.NetworkManager.singleton != null)
+        {
+            Mirror.NetworkManager.singleton.StopAllCoroutines();
+            Mirror.NetworkManager.singleton.StopHost();
+            Mirror.NetworkManager.singleton.StopClient();
+        }
+
         Application.Quit();
     }
 }

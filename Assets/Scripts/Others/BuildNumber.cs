@@ -14,7 +14,7 @@ public class BuildNumber : MonoBehaviour
     {
         string buildVersion = PlayerPrefs.GetString("buildNumber", CalculateVersionNumber());
 
-        string buildType = "PUBLIC ALPHA - ";
+        string buildType = "PUBLIC BETA - ";
 
         #if UNITY_EDITOR
         buildVersion = $"({buildType}Editor - build {buildVersion})";

@@ -174,8 +174,7 @@ public class CardManager : MonoBehaviour
     {
         if (debugger != null && debugger.gameObject.activeSelf)
         {
-            string IsDraggingStatus = debugger.ColoredString(IsDragging ? "TRUE" : "FALSE", IsDragging ? Color.green : Color.red);
-            debugger.UpdatePersistentLog("isDragging", IsDraggingStatus);
+            debugger.UpdatePersistentLog("isDragging", debugger.ColoredString(IsDragging ? "TRUE" : "FALSE", IsDragging ? Color.green : Color.red));
         }
 
         // Csak akkor húzza, ha EZEN a kártyán nyomták le az egérgombot
@@ -326,6 +325,8 @@ public class CardManager : MonoBehaviour
         bool isFrontActive = cardFrontRenderer.gameObject.activeSelf;
         cardFrontRenderer.gameObject.SetActive(!isFrontActive);
         cardBackRenderer.gameObject.SetActive(isFrontActive);
+
+        //if (debugger != null) debugger.AddTextToDebugFile($"[CardManager] FlipCard called on \"{gameObject.name}\". After Flipped => state: Front: {!isFrontActive}, Back: {isFrontActive}");
     }
 
     public void SetCardPosition(Vector3 position)

@@ -9,6 +9,7 @@ public class Debugger : MonoBehaviour
     #region Változók
 
     private TextMeshProUGUI outputText;
+    private TextMeshProUGUI outputText2;
     private GameObject currentSelectedGameObject;
 
     private string debugText = "!DEBUG!\n";
@@ -20,13 +21,21 @@ public class Debugger : MonoBehaviour
 
     private float clearLogsTimer = 0f;
 
+    private string debugTextForFile = "";
+    
+    // Debugger UI frissítési rate limiting
+    private float debuggerUpdateTimer = 0f;
+    private float debuggerUpdateInterval = 0.1f; // 10x per second instead of 60x
+
     #endregion
 
     #region Awake, Start, Update, LateUpdate
 
     private void Awake()
     {
-        outputText = GetComponentInChildren<TextMeshProUGUI>();
+        //outputText = GetComponentInChildren<TextMeshProUGUI>();
+        outputText = transform.Find("Text (TMP)")?.GetComponent<TextMeshProUGUI>();
+        outputText2 = transform.Find("BG_Text2/Text2 (TMP)")?.GetComponent<TextMeshProUGUI>();
     }
 
     private void Start()
@@ -46,6 +55,12 @@ public class Debugger : MonoBehaviour
 
     private void Update()
     {
+        // Billentyűzet shortcut a debuglog fájlba mentéséhez
+        if (Input.GetKeyDown(KeyCode.F12))
+        {
+            SaveDebugFile("DebuggerLog_ManualSave.txt");
+        }
+
         if(!gameObject.activeSelf)
         {
             return;
@@ -59,11 +74,21 @@ public class Debugger : MonoBehaviour
                   + "\n";
 
         //outputText.text = debugText;
+        
+        // Ha outputText2 sorainak száma eléri a 25-öt, akkor töröljük a legrégebbi sorokat
     }
 
     // A LateUpdate-ben összeállítjuk az outputot
     void LateUpdate()
     {
+        // Rate limiting: csak debuggerUpdateInterval másodpercenként frissítsd a UI-t
+        debuggerUpdateTimer += Time.deltaTime;
+        if (debuggerUpdateTimer < debuggerUpdateInterval)
+        {
+            return;
+        }
+        debuggerUpdateTimer = 0f;
+        
         debugText = "";
 
         // Persistent logok hozzáadása
@@ -83,7 +108,7 @@ public class Debugger : MonoBehaviour
         // Összes Interactive Panel Panel és annak elemeinek státuszának kiírása
         foreach (var panel in interactivePanels)
         {
-            debugText += panel.gameObject.name + ": " + (panel.activeInHierarchy ? ColoredString("Active", Color.green) : ColoredString("Inactive", Color.red)) + "\n";
+            //debugText += panel.gameObject.name + ": " + (panel.activeInHierarchy ? ColoredString("Active", Color.green) : ColoredString("Inactive", Color.red)) + "\n";
             foreach (var selectable in panel.GetComponentsInChildren<Selectable>())
             {
                 //debugText += "  " + selectable.gameObject.name + ": " + (EventSystem.current.currentSelectedGameObject == selectable.gameObject ? ColoredString("Selected", Color.green) : ColoredString("Not Selected", Color.red)) + "\n";
@@ -99,6 +124,16 @@ public class Debugger : MonoBehaviour
         {
             transientLogs = ""; // Töröljük a transient logokat
             clearLogsTimer = 0f; // Timer visszaállítása
+        }
+
+        if (outputText2 != null)
+        {
+            string[] lines = outputText2.text.Split('\n');
+            if (lines.Length > 9)
+            {
+                int excessLineCount = lines.Length - 9;
+                outputText2.text = string.Join("\n", lines, excessLineCount, lines.Length - excessLineCount);
+            }
         }
     }
 
@@ -125,6 +160,75 @@ public class Debugger : MonoBehaviour
             transientLogs += ColoredString(message.text, message.color) + "\t";
         }
         transientLogs += "\n";
+    }
+
+    public void AddTextToDebugFile(string text)
+    {
+        outputText2.text += $"[{System.DateTime.Now:HH:mm:ss:fff}] {text}\n";
+        debugTextForFile += $"[{System.DateTime.Now:HH:mm:ss:fff}] {text}\n";
+    }
+
+    public void SaveDebugFile(string filename)
+    {
+        if (string.IsNullOrEmpty(filename))
+            filename = "DebuggerLog.txt";
+
+        string name = System.IO.Path.GetFileNameWithoutExtension(filename);
+        string ext = System.IO.Path.GetExtension(filename);
+        string finalFilename = filename;
+
+        if (true)
+        {
+            string pid = $"PID{System.Diagnostics.Process.GetCurrentProcess().Id}";
+            string ts = System.DateTime.Now.ToString("yyyyMMdd_HHmmss");
+            string guid = System.Guid.NewGuid().ToString("N").Substring(0, 8);
+            finalFilename = $"{name}_{pid}_{ts}_{guid}{ext}";
+        }
+
+        Debug.Log($"Debugger: Attempting to save debug file as {finalFilename}...");
+        // Save to: "C:\111\BUSZOZAS_DEBUGOUTPUTS\"
+        string outputDir = @"C:\111\BUSZOZAS_DEBUGOUTPUTS\";
+        try
+        {
+            System.IO.Directory.CreateDirectory(outputDir);
+            string fullPath = System.IO.Path.Combine(outputDir, finalFilename);
+            System.IO.File.WriteAllText(fullPath, debugTextForFile);
+            Debug.Log($"Debugger: Saved debug file to {fullPath}");
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogError($"Debugger: Failed to save debug file to {outputDir}: {ex.Message}");
+            // Fallback to persistentDataPath
+            try
+            {
+                string fallbackDir = Application.persistentDataPath;
+                System.IO.Directory.CreateDirectory(fallbackDir);
+                string fallbackPath = System.IO.Path.Combine(fallbackDir, finalFilename);
+                System.IO.File.WriteAllText(fallbackPath, debugTextForFile);
+                Debug.Log($"Debugger: Saved debug file to fallback path {fallbackPath}");
+            }
+            catch (System.Exception ex2)
+            {
+                Debug.LogError($"Debugger: Failed fallback save: {ex2.Message}");
+            }
+        }
+
+        debugTextForFile = ""; // Kiürítjük a tartalmat mentés után
+    }
+
+    private void OnApplicationQuit()
+    {
+        
+        if (!string.IsNullOrEmpty(debugTextForFile))
+        {
+            SaveDebugFile("DebuggerLog_OnQuit.txt");
+        }
+        
+    }
+
+    public void ClearDebugFileBuffer()
+    {
+        debugTextForFile = "";
     }
 
     public string ColoredString(string text, Color color)

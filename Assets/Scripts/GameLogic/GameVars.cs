@@ -12,7 +12,7 @@ public class GameVars : MonoBehaviour
     [SerializeField] private Debugger debugger;
 
     [Header("Game Settings")]
-    [SerializeField] private string busName = "SINGLEPLAYER";
+    [SerializeField] private string busName = "BUSZJARAT";
     [SerializeField] private int numberOfPlayers = 10;
     [SerializeField] private bool reversedPyramidMode;
     
@@ -159,7 +159,7 @@ public class GameVars : MonoBehaviour
 
     public void ResetToDefaults()
     {
-        BusName = "SINGLEPLAYER";
+        BusName = "BUSZJARAT";
         NumberOfPlayersInGame = 10;
         ReversedPyramidMode = false;
         playerNames = new string[10] {"", "", "", "", "", "", "", "", "", ""};

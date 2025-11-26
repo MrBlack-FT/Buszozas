@@ -319,8 +319,20 @@ MonoBehaviour:
             m_BoolArgument: 0
           m_CallState: 2
     timing: 1
+  OpenMultiplayerCreateActions: []
+  CloseMultiplayerCreateActions: []
   OpenMultiplayerLobbyActions: []
   CloseMultiplayerLobbyActions: []
+  OpenMultiplayerRoomActions: []
+  CloseMultiplayerRoomActions: []
+  ShowPlayersUIActions: []
+  HidePlayersUIActions: []
+  OpenPauseMenuActions: []
+  ClosePauseMenuActions: []
+  OpenPauseOptionsActions: []
+  ClosePauseOptionsActions: []
+  OpenPauseExitActions: []
+  ClosePauseExitActions: []
 --- !u!1 &5103527171482437800
 GameObject:
   m_ObjectHideFlags: 0
