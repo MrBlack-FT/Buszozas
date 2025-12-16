@@ -196,7 +196,6 @@ public class PlayerManager : MonoBehaviour
     public void ClearAllCards()
     {
         player.ClearPlayerCards();
-        // TODO: CardManager-ek resetelése
     }
 
     public Transform GetOriginalTransform()

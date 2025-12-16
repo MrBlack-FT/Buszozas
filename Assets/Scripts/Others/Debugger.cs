@@ -221,7 +221,7 @@ public class Debugger : MonoBehaviour
         
         if (!string.IsNullOrEmpty(debugTextForFile))
         {
-            SaveDebugFile("DebuggerLog_OnQuit.txt");
+            //SaveDebugFile("DebuggerLog_OnQuit.txt");
         }
         
     }

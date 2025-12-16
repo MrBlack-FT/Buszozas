@@ -5,7 +5,6 @@ using UnityEngine.UI;
 using DG.Tweening;
 using TMPro;
 using Nobi.UiRoundedCorners;
-using System.Threading;
 
 public class GameManager : MonoBehaviour
 {
@@ -669,8 +668,6 @@ public class GameManager : MonoBehaviour
             }
         }*/
 
-        //timerDO += Time.deltaTime;
-        //timerDOText.text = "Timer: " + timerDO.ToString("F5");
         /*
         debugger.UpdatePersistentLog("===================================", " ");
         debugger.UpdatePersistentLog("currentPhase", currentPhase.ToString());
@@ -706,6 +703,7 @@ public class GameManager : MonoBehaviour
         debugger.UpdatePersistentLog("LOCAL totalPointsToGive", _totalPointsToGive.ToString());
         debugger.UpdatePersistentLog("MIRROR totalPointsToGive", totalPointsToGive.ToString());
         */
+        /*
         if (currentCard != null)
         {
             if (currentCard.GetCardData() != null)
@@ -716,7 +714,6 @@ public class GameManager : MonoBehaviour
         debugger.UpdatePersistentLog("5. buszCard", buszCards[4] != null && buszCards[4].GetCardData() != null ? "[" + buszCards[4].GetCardData().GetCardType().ToString() + " " + buszCards[4].GetCardData().GetCardValue().ToString() + " " + buszCards[4].GetCardData().GetCardBackType().ToString() + "]" : "N/A");
         debugger.UpdatePersistentLog("LOCAL currentBuszCardIndex", _currentBuszCardIndex.ToString());
         debugger.UpdatePersistentLog("MIRROR currentBuszCardIndex", currentBuszCardIndex.ToString());
-        /*
 
         debugger.UpdatePersistentLog("LOCAL waitingForBuszTipp", _waitingForBuszTipp ? debugger.ColoredString("TRUE", Color.green) : debugger.ColoredString("FALSE", Color.red));
         debugger.UpdatePersistentLog("MIRROR waitingForBuszTipp", waitingForBuszTipp ? debugger.ColoredString("TRUE", Color.green) : debugger.ColoredString("FALSE", Color.red));
@@ -2639,14 +2636,6 @@ public class GameManager : MonoBehaviour
         }
     }
 
-
-    // TODO -> EZEKET TÖRÖLNI!
-    // DEBUG!
-    //private float timerDO = 0f;
-    [SerializeField] private TextMeshProUGUI timerDOText;
-    // DEBUG!
-
-
     // Ez tiszta Singleplayer, Többjátékos módban soha nem fut le!
     private void TippContinue(float delay = 0f)
     {
@@ -3889,7 +3878,7 @@ public class GameManager : MonoBehaviour
             {
                 if (currentPlayerIndex >= activePlayers.Count)
                 {
-                    currentPlayerIndex = 0;             // TODO: BroadCast mindenkinek, hogy a currentPlayerIndex 0-ra állt vissza?
+                    currentPlayerIndex = 0;
                     
                     Debug.Log("[SERVER] [GameManager] Broadcasting NextPiramisCard from Server"); if (debugger != null && debugger.gameObject.activeInHierarchy) debugger.AddTextToDebugFile("[SERVER] [GameManager] Broadcasting NextPiramisCard from Server");
                     NetworkGameManager.Instance.RpcNextPiramisCard(0.25f);

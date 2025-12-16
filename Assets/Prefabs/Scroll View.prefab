@@ -338,6 +338,7 @@ GameObject:
   - component: {fileID: 7286104458490533154}
   - component: {fileID: 7574029002594255070}
   - component: {fileID: 3763813832759647709}
+  - component: {fileID: 817051138846790938}
   m_Layer: 5
   m_Name: Scroll View
   m_TagString: Untagged
@@ -434,6 +435,18 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
+--- !u!225 &817051138846790938
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7522314816117656396}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &7522378548663573275
 GameObject:
   m_ObjectHideFlags: 0

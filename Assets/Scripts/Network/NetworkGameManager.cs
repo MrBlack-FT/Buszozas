@@ -111,36 +111,6 @@ public class NetworkGameManager : NetworkBehaviour
         }
     }
 
-    /*
-    public override void OnStopClient()
-    {
-        base.OnStopClient();
-
-        string offlineScene = NetworkManager.singleton.offlineScene;
-
-        if (SceneManager.GetActiveScene().name == offlineScene)
-            return;
-
-        if (!string.IsNullOrEmpty(offlineScene))
-            SceneManager.LoadScene(offlineScene);
-    }
-
-    public override void OnStopServer()
-    {
-        base.OnStopServer();
-
-        string offlineScene = NetworkManager.singleton.offlineScene;
-
-        if (SceneManager.GetActiveScene().name == offlineScene)
-            return;
-
-        if (!string.IsNullOrEmpty(offlineScene))
-            SceneManager.LoadScene(offlineScene);
-    }
-    */
-
-
-
     void Start()
     {
         // Server késleltetett inicializálás (várjuk meg a GameManager scene betöltését)
@@ -420,16 +390,6 @@ public class NetworkGameManager : NetworkBehaviour
         RpcStartGameForAllClients();
     }
 
-    /*
-    /// Server inicializálja a játékot amikor minden játékos csatlakozott
-    [Server]
-    public void StartGame()
-    {
-        Debug.Log("[Server] Starting game with all players...NOT YET IMPLEMENTED"); if (debugger != null && debugger.gameObject.activeInHierarchy) debugger.AddTextToDebugFile("[Server] Starting game with all players...NOT YET IMPLEMENTED");
-        // TODO: GameManager.StartGame() hívása
-    }
-    */
-
     #endregion
 
     #region Client → Server (Commands)
@@ -456,8 +416,6 @@ public class NetworkGameManager : NetworkBehaviour
     public void CmdPlayerReady(int playerId, NetworkConnectionToClient sender = null)
     {
         Debug.Log($"[Server]\tPlayer {playerId} is ready"); if (debugger != null && debugger.gameObject.activeInHierarchy) debugger.AddTextToDebugFile($"[Server]\tPlayer {playerId} is ready");
-        
-        // TODO: Ready state tracking
     }
 
     /// Client megerősíti a pont osztást
@@ -741,19 +699,6 @@ public class NetworkGameManager : NetworkBehaviour
         //gameStarted = true;
     }
 
-    /*
-    /// Server értesíti a clienteket hogy elindult a játék
-    [ClientRpc]
-    public void RpcNotifyGameStarted()
-    {
-        Debug.Log("[Client] Game has started!");
-        if (debugger != null && debugger.gameObject.activeInHierarchy)
-            debugger.AddTextToDebugFile("[Client] Game has started!");
-        
-        gameStarted = true;
-    }
-    */
-
     [ClientRpc]
     public void RpcRotatePlayers()
     {
@@ -816,27 +761,6 @@ public class NetworkGameManager : NetworkBehaviour
         if (gameManager != null)
         {
             gameManager.FlipPyramidCard();
-            
-            /*
-            // 1s delay után ellenőrizzük, hogy tud-e kártyát letenni
-            // CSAK A SZERVER dönt!
-            DOVirtual.DelayedCall(1f, () =>
-            {
-                if (isServer && gameManager != null)
-                {
-                    bool hasMatchingCard = gameManager.CheckIfPlayerCanDropCard();
-                    
-                    // Ha NINCS kártya, akkor 1 másodperc után lépünk a következő játékosra
-                    if (!hasMatchingCard)
-                    {
-                        DOVirtual.DelayedCall(1f, () =>
-                        {
-                            RpcNextPiramisPlayer(2f);
-                        });
-                    }
-                }
-            });
-            */
         }
     }
 
@@ -911,26 +835,6 @@ public class NetworkGameManager : NetworkBehaviour
         }
     }
 
-    /*
-    /// Server broadcastolja hogy melyik játékos jön
-    [ClientRpc]
-    public void RpcCurrentPlayerChanged(int playerId)
-    {
-        Debug.Log($"[ClientRpc]   Current player is now: {playerId}"); if (debugger != null && debugger.gameObject.activeInHierarchy) debugger.AddTextToDebugFile($"[ClientRpc]   Current player is now: {playerId}");
-        
-        
-        // TODO: UI frissítés (timer, gombok enable/disable)
-    }
-
-    /// Server broadcastolja a játék végét
-    [ClientRpc]
-    public void RpcGameEnded(string resultsMessage)
-    {
-        Debug.Log($"[ClientRpc]   Game ended: {resultsMessage}"); if (debugger != null && debugger.gameObject.activeInHierarchy) debugger.AddTextToDebugFile($"[ClientRpc]   Game ended: {resultsMessage}");
-        
-        // TODO: EndGame UI megjelenítés
-    }*/
-    
     /// Server broadcastolja az EndGame UI-t
     [ClientRpc]
     public void RpcShowEndGame(string resultsMessage)

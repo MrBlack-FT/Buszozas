@@ -274,7 +274,7 @@ public class NetworkPlayer : NetworkBehaviour
         }
     }
 
-    
+    /*
     void OnGUI()
     {
         if (!isLocalPlayer) return;
@@ -284,5 +284,6 @@ public class NetworkPlayer : NetworkBehaviour
         GUI.Label(new Rect(20, 55, 180, 20), $"Name: {playerName}");
         //GUI.Label(new Rect(20, 75, 180, 20), $"Score: {playerScore}");
     }
+    */
     
 }
