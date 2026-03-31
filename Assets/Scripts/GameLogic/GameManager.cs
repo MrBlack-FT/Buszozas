@@ -778,6 +778,36 @@ public class GameManager : MonoBehaviour
         */
     }
 
+    public void InitializePiramisGame()
+    {
+        gameDisplay.HideStartButtons(startButtonsGroup);
+
+        tippCardGroup.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, 100);
+
+        currentPhase = GamePhase.Tipp;
+        currentRound = 6;
+        currentPlayerIndex = 0;
+        FillPlayersWithCards();
+        FillPlayersWithRandomPoints(0, 20);
+        RefreshPlayerUI();
+        NextRound();
+    }
+
+    public void InitializeBuszGame()
+    {
+        gameDisplay.HideStartButtons(startButtonsGroup);
+
+        tippCardGroup.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, 100);
+
+        currentPhase = GamePhase.Piramis;
+        currentPiramisRow = 6;
+        currentPlayerIndex = 0;
+        FillPlayersWithRandomPoints(20, 40);
+        FillPlayersAttempts(3);
+        RefreshPlayerUI();
+        NextRound();
+    }
+
     // StartTippKor gyakorlatilag csak megjelenítés és timer indítás.
     public void StartTippKor()
     {
@@ -4930,6 +4960,23 @@ public class GameManager : MonoBehaviour
                     player.AddCardToPlayer(deck.DrawCard());
                 }
             }
+        }
+    }
+
+    private void FillPlayersWithRandomPoints(int minPoints, int maxPoints)
+    {
+        foreach (var player in activePlayers)
+        {
+            int randomPoints = Random.Range(minPoints, maxPoints + 1);
+            player.SetPlayerScore(randomPoints);
+        }
+    }
+
+    private void FillPlayersAttempts(int attempts)
+    {
+        foreach (var player in activePlayers)
+        {
+            SetPlayerBuszAttempts(player.GetPlayerID(), attempts);
         }
     }
 

@@ -12,7 +12,7 @@ public class BuildNumber : MonoBehaviour
 {
     private void Start()
     {
-        string buildVersion = PlayerPrefs.GetString("buildNumber", CalculateVersionNumber());
+        string buildVersion = PlayerPrefs.GetString("buildNumber", "-1");
 
         string buildType = "PUBLIC BETA - ";
 

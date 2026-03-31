@@ -211,4 +211,24 @@ public class GameVarsUI : MonoBehaviour
         yield return new WaitForSeconds(3f);
         warningText.gameObject.SetActive(false);
     }
+
+    public void FillNames()
+    {
+        if (GameVars.Instance == null || playerNameInputFieldsSinglePlayer == null) return;
+
+        string[] testNames = new string[] { "Anna", "Béla", "Cili", "Dóra", "Ernő", "Ferenc", "Géza", "Hanna", "Imre", "Judit" };
+
+        int players = GameVars.Instance.NumberOfPlayersInGame;
+
+        for (int i = 0; i < playerNameInputFieldsSinglePlayer.Length; i++)
+        {
+            // Csak az aktív játékosok InputField-jeit töltjük ki (i < players)
+            if (i < players)
+            {
+                string name = testNames[i % testNames.Length];
+                playerNameInputFieldsSinglePlayer[i].text = name;
+                GameVars.Instance.SetPlayerName(i, name);
+            }
+        }
+    }
 }
